@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F9961719-46EC-4349-A596-03D00B234804}") = "HoardFarm", "HoardFarm\HoardFarm.csproj", "{B34F6005-3A8B-43BD-A4AF-4B27DED3E58C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommons", "ECommons\ECommons\ECommons.csproj", "{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B34F6005-3A8B-43BD-A4AF-4B27DED3E58C}.Debug|x64.ActiveCfg = Debug|x64
+		{B34F6005-3A8B-43BD-A4AF-4B27DED3E58C}.Debug|x64.Build.0 = Debug|x64
+		{B34F6005-3A8B-43BD-A4AF-4B27DED3E58C}.Release|x64.ActiveCfg = Release|x64
+		{B34F6005-3A8B-43BD-A4AF-4B27DED3E58C}.Release|x64.Build.0 = Release|x64
+		{9BE5B771-F827-4E06-8A03-CB5B0F767AEB}.Debug|x64.ActiveCfg = Debug|x64
+		{9BE5B771-F827-4E06-8A03-CB5B0F767AEB}.Debug|x64.Build.0 = Debug|x64
+		{9BE5B771-F827-4E06-8A03-CB5B0F767AEB}.Release|x64.ActiveCfg = Release|x64
+		{9BE5B771-F827-4E06-8A03-CB5B0F767AEB}.Release|x64.Build.0 = Release|x64
+		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Debug|x64.ActiveCfg = Debug|x64
+		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Debug|x64.Build.0 = Debug|x64
+		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Release|x64.ActiveCfg = Release|x64
+		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B609548-3EF7-4A4E-BDEF-3E3E11E63CBB}
+	EndGlobalSection
+EndGlobal
