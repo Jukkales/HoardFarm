@@ -10,7 +10,7 @@ Repo:
 https://raw.githubusercontent.com/Jukkales/DalamudPlugins/master/repo.json
 ```
 **YOU WILL NEEED [vnavmesh](https://github.com/awgil/ffxiv_navmesh) FOR THIS!**
-Check the Installation Guide for more information.
+Check the [Installation Guide](https://github.com/Jukkales/HoardFarm/blob/main/INSTALL.md) for more information.
 
 ---
 
