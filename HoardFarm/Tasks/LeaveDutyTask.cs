@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices;
-using Dalamud.Game.ClientState.Conditions;
-using ECommons.Automation;
-using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using HoardFarm.IPC;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace HoardFarm.Tasks;

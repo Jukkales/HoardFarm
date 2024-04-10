@@ -12,7 +12,7 @@ public class PathfindTask(Vector3 targetPosition, bool sprint = false, float tol
 {
     public unsafe bool? Run()
     {
-        if (targetPosition.Distance2D(Player.GameObject->Position) <= toleranceDistance)
+        if (targetPosition.Distance(Player.GameObject->Position) <= toleranceDistance)
         {
             NavmeshIPC.PathStop();
             return true;

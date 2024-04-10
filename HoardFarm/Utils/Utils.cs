@@ -1,33 +1,25 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons.DalamudServices;
-using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace HoardFarm.Utils;
 
 public static class Utils
 {
     public static float SprintCD => Player.Status.FirstOrDefault(s => s.StatusId == 50)?.RemainingTime ?? 0;
+    public static bool Concealment => (Player.Status.FirstOrDefault(s => s.StatusId == VanishStatusId)?.RemainingTime ?? 0) > 0;
     public static bool InHoH => Player.Territory == HoHMapId11 || Player.Territory == HoHMapId21;
     public static bool InRubySea => Player.Territory == RubySeaMapId;
     public static unsafe bool IsMoving() => AgentMap.Instance()->IsPlayerMoving == 1;
-    
-    public static float Distance2D(this Vector3 v, Vector3 v2)
-    {
-        return new Vector2(v.X - v2.X, v.Z - v2.Z).Length();
-    }
-    
+    public static float Distance(this Vector3 v, Vector3 v2) => new Vector2(v.X - v2.X, v.Z - v2.Z).Length();
     public static bool PluginInstalled(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
     
     public static bool NotBusy()
@@ -74,7 +66,7 @@ public static class Utils
     {
         if (ObjectTable.TryGetFirst(e => e.DataId == KyuseiDataId, out var npc))
         {
-            return npc.Position.Distance2D(Player.GameObject->Position) < 3f;
+            return npc.Position.Distance(Player.GameObject->Position) < 3f;
         }
         return false;
     }

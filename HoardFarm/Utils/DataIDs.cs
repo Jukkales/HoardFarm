@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace HoardFarm.Utils;
 
@@ -17,5 +18,8 @@ public static class DataIDs
     public const uint ConfirmPartyKoMessageId = 10483;
     
     public const uint VanishStatusId = 1496;
+    public const uint AccursedHoardId = 2007542;
     
+    public static readonly HashSet<uint> ChestIDs = [2007357, 2007358];
+
 }
