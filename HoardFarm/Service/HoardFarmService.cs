@@ -22,6 +22,7 @@ public class HoardFarmService : IDisposable
     private bool hoardFound;
     private bool hoardAvailable;
     private bool intuitionUsed;
+    private bool movingToHoard;
     private Vector3 hoardPosition = Vector3.Zero;
     // private Collection<uint> chestIds = [];
     // private Collection<uint> visitedChestIds = [];
@@ -91,6 +92,8 @@ public class HoardFarmService : IDisposable
         intuitionUsed = false;
         hoardFound = false;
         hoardPosition = Vector3.Zero;
+        movingToHoard = false;
+        hoardAvailable = false;
     }
 
     private void OnTimerUpdate(object? sender, ElapsedEventArgs e)
@@ -99,7 +102,17 @@ public class HoardFarmService : IDisposable
         {
             if (CheckDone())
             {
-                HoardMode = false;
+                if (InHoH)
+                {
+                    HoardModeStatus = "Ending";
+                    TaskManager.Abort();
+                    EnqueueImmediate(new LeaveDutyTask());
+                }
+                EnqueueImmediate(() =>
+                {
+                    HoardMode = false;
+                    return true;
+                });
                 return;
             }
             if (!InHoH && !InRubySea && NotBusy() && !KyuseiInteractable())
@@ -133,30 +146,49 @@ public class HoardFarmService : IDisposable
                         
                         if (hoardPosition != Vector3.Zero)
                         {
-                            Enqueue(new UsePomanderTask(Pomander.Concealment));
-                            Enqueue(new PathfindTask(hoardPosition, true, 1.5f), 60*1000);
-                            HoardModeStatus = "Move to Hoard";
+                            if (!movingToHoard)
+                            {
+                                Enqueue(new UsePomanderTask(Pomander.Concealment));
+                                Enqueue(new PathfindTask(hoardPosition, true, 1.5f), 60 * 1000);
+                                movingToHoard = true;
+                                HoardModeStatus = "Move to Hoard";
+                            }
                         }
                         else
                         {
-                            HoardModeStatus = "Unreachable";
-                            Enqueue(new LeaveDutyTask());
-                            SessionRuns++;
-                            
+                            if (!hoardFound)
+                            {
+                                HoardModeStatus = "Unreachable";
+                                Enqueue(new LeaveDutyTask());
+                                Enqueue(() =>
+                                {
+                                    SessionRuns++;
+                                    return true;
+                                });
+                            }
                         }
 
                         if (hoardFound)
                         {
                             HoardModeStatus = "Leaving";
                             Enqueue(new LeaveDutyTask());
-                            SessionRuns++;
+                            Enqueue(() =>
+                            {
+                                SessionRuns++;
+                                SessionFoundHoards++;
+                                return true;
+                            });
                         }
                     }
                     else
                     {
                         HoardModeStatus = "Leaving";
                         Enqueue(new LeaveDutyTask());
-                        SessionRuns++;
+                        Enqueue(() =>
+                        {
+                            SessionRuns++;
+                            return true;
+                        });
                     }
                 }
             }
@@ -215,7 +247,6 @@ public class HoardFarmService : IDisposable
         {
             hoardFound = true;
             HoardModeStatus = "Done";
-            SessionFoundHoards++;
         }
     }
     
