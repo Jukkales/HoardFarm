@@ -102,10 +102,11 @@ public class HoardFarmService : IDisposable
     private unsafe bool SearchLogic()
     {
         HoardModeStatus = "Searching";
+        chestIds.Clear();
         var chests = ObjectTable.Where(e => ChestIDs.Contains(e.DataId)).Select(e => e.ObjectId).Distinct().ToList();
         chests.ForEach(e =>
         {
-            if (!visitedChestIds.Contains(e) && !chestIds.Contains(e))
+            if (!visitedChestIds.Contains(e))
             {
                 chestIds.Add(e);
             }
@@ -115,7 +116,6 @@ public class HoardFarmService : IDisposable
         {
             var nextChest = chestIds.MaxBy(id => ObjectTable.First(e => e.ObjectId == id).Position.Distance(Player.GameObject->Position));
             visitedChestIds.Add(nextChest);
-            chestIds.Remove(nextChest);
             
             if (!Concealment)
             {
