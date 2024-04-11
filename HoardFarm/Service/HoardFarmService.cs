@@ -28,6 +28,7 @@ public class HoardFarmService : IDisposable
     private bool intuitionUsed;
     private bool movingToHoard;
     private bool searchMode;
+    private bool finishRun;
     private Vector3 hoardPosition = Vector3.Zero;
     private readonly List<uint> chestIds = [];
     private readonly List<uint> visitedChestIds = [];
@@ -72,12 +73,6 @@ public class HoardFarmService : IDisposable
         TaskManager.Abort();
         HoardModeStatus = "";
         ChatGui.ChatMessage -= OnChatMessage;
-        
-        Config.OverallRuns += SessionRuns;
-        Config.OverallFoundHoards += SessionFoundHoards;
-        Config.OverallTime += SessionTime;
-        Config.Save();
-        
         Reset();
     }
 
@@ -94,12 +89,14 @@ public class HoardFarmService : IDisposable
 
     private void Reset()
     {
+        Config.Save();
         intuitionUsed = false;
         hoardFound = false;
         hoardPosition = Vector3.Zero;
         movingToHoard = false;
         hoardAvailable = false;
         searchMode = false;
+        finishRun = false;
     }
 
     private unsafe bool SearchLogic()
@@ -156,19 +153,9 @@ public class HoardFarmService : IDisposable
         
         if (!TaskManager.IsBusy && hoardModeActive)
         {
-            if (CheckDone())
+            if (CheckDone() && !finishRun)
             {
-                if (InHoH)
-                {
-                    HoardModeStatus = "Ending";
-                    TaskManager.Abort();
-                    EnqueueImmediate(new LeaveDutyTask(), "Leave Duty");
-                }
-                EnqueueImmediate(() =>
-                {
-                    HoardMode = false;
-                    return true;
-                });
+                finishRun = true;
                 return;
             }
             if (!InHoH && !InRubySea && NotBusy() && !KyuseiInteractable())
@@ -179,6 +166,12 @@ public class HoardFarmService : IDisposable
             
             if (InRubySea && NotBusy() && KyuseiInteractable())
             {
+                if (finishRun)
+                {
+                    HoardModeStatus = "Finished";
+                    HoardMode = false;
+                    return;
+                }
                 HoardModeStatus = "Entering HoH";
                 Enqueue(new EnterHeavenOnHigh(), "Enter HoH");
             }
@@ -222,30 +215,24 @@ public class HoardFarmService : IDisposable
                         if (hoardFound)
                         {
                             HoardModeStatus = "Leaving";
+                            SessionRuns++;
+                            Config.OverallRuns++;
                             Enqueue(new LeaveDutyTask(), "Leave Duty");
-                            Enqueue(() =>
-                            {
-                                SessionRuns++;
-                                SessionFoundHoards++;
-                                return true;
-                            });
                         }
                     }
                     else
                     {
                         HoardModeStatus = "Leaving";
+                        SessionRuns++;
+                        Config.OverallRuns++;
                         Enqueue(new LeaveDutyTask(), "Leave Duty");
-                        Enqueue(() =>
-                        {
-                            SessionRuns++;
-                            return true;
-                        });
                     }
                 }
             }
         }
 
         SessionTime++;
+        Config.OverallTime++;
     }
 
     private void FindHoardPosition()
@@ -306,6 +293,8 @@ public class HoardFarmService : IDisposable
         if (hoardFoundMessage.Equals(message.TextValue))
         {
             hoardFound = true;
+            SessionFoundHoards++;
+            Config.OverallFoundHoards++;
             HoardModeStatus = "Done";
         }
     }

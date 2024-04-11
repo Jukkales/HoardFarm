@@ -76,24 +76,46 @@ public class MainWindow() : Window("Hoard Farm", ImGuiWindowFlags.AlwaysAutoResi
         
         ImGui.Text("Current Session");
         ImGui.Text("Runs: " + HoardService.SessionRuns);
-        ImGui.Text("Found: " + HoardService.SessionFoundHoards);
-        ImGui.Text("Time: " + FormatTime(HoardService.SessionTime));
+        var sessionPercent = HoardService.SessionFoundHoards == 0 ? 0 : HoardService.SessionFoundHoards / (double)HoardService.SessionRuns * 100;
+        ImGui.Text(
+            $"Found: {HoardService.SessionFoundHoards}   ({sessionPercent:0.##} %%)");
+        
+        var sessionTimeAverage = HoardService.SessionFoundHoards == 0 ? 0 : HoardService.SessionTime / HoardService.SessionFoundHoards;
+        if (sessionTimeAverage > 0)
+        {
+            ImGui.Text($"Time: {FormatTime(HoardService.SessionTime)}   (Ø {FormatTime(sessionTimeAverage, false)})");
+        }
+        else
+        {
+            ImGui.Text("Time: " + FormatTime(HoardService.SessionTime));
+        }
         
         ImGui.EndGroup();
-        ImGui.SameLine(150);
+        ImGui.SameLine(170);
         ImGui.BeginGroup();
         
         ImGui.Text("Overall");
         ImGui.Text("Runs: " + Config.OverallRuns);
-        ImGui.Text("Found: " + Config.OverallFoundHoards);
-        ImGui.Text("Time: " + FormatTime(Config.OverallTime));
+        var overallPercent = Config.OverallRuns == 0 ? 0 : Config.OverallFoundHoards / (double)Config.OverallRuns * 100;
+        ImGui.Text(
+            $"Found: {Config.OverallFoundHoards}   ({overallPercent:0.##} %%)");
+        
+        var overallTimeAverage = Config.OverallFoundHoards == 0 ? 0 : Config.OverallTime / Config.OverallFoundHoards;
+        if (overallTimeAverage > 0)
+        {
+            ImGui.Text($"Time: {FormatTime(Config.OverallTime)}   (Ø {FormatTime(overallTimeAverage, false)})");
+        }
+        else
+        {
+            ImGui.Text("Time: " + FormatTime(Config.OverallTime));
+        }
         
         ImGui.EndGroup();
         
     }
     
-    private static String FormatTime(int seconds)
+    private static String FormatTime(int seconds, bool withHours = true)
     {
-        return TimeSpan.FromSeconds(seconds).ToString(@"hh\:mm\:ss");
+        return TimeSpan.FromSeconds(seconds).ToString(withHours ? @"hh\:mm\:ss" : @"mm\:ss");
     }
 }
