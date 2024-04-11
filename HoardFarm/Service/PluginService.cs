@@ -42,4 +42,5 @@ public class PluginService
     public static Configuration Config { get; set; } = null!;
     public static HoardFarmService HoardService { get; set; } = null!;
     public static TaskManager TaskManager { get; set; } = null!;
+    public static AchievementService Achievements { get; set; } = null!;
 }

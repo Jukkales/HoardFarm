@@ -20,6 +20,9 @@ public static class DataIDs
     public const uint VanishStatusId = 1496;
     public const uint AccursedHoardId = 2007542;
     
-    public static readonly HashSet<uint> ChestIDs = [2007357, 2007358];
+    public const uint ForTheHoardAchievementId = 3184;
+    
+    public static readonly HashSet<uint> ChestIDs = 
+        [1036, 1037, 1038, 1039, 1040, 1041, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 2007357, 2007358];
 
 }

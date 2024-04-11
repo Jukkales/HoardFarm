@@ -5,6 +5,7 @@ using Dalamud.Interface.Windowing;
 using ECommons.ImGuiMethods;
 using HoardFarm.IPC;
 using HoardFarm.Model;
+using HoardFarm.Service;
 using ImGuiNET;
 
 namespace HoardFarm.Windows;
@@ -111,11 +112,31 @@ public class MainWindow() : Window("Hoard Farm", ImGuiWindowFlags.AlwaysAutoResi
         }
         
         ImGui.EndGroup();
+        ImGui.Separator();
         
+        ImGui.Text("Progress: " + Achievements.Progress + " / 20000");
+        if (Achievements.Progress == 0)
+        {
+            ImGui.Text($"Damn it will take ages. Trust me");
+        } else if (overallTimeAverage == 0)
+        {
+            ImGui.Text($"Suffer more. Unable to calculate the remaining time.");
+        } else {
+            ImGui.Text(
+                $"You will need at least {FormatRemaining((20000 - Achievements.Progress) * overallTimeAverage)}\nof farming to complete the achievement.");
+        }
+
+
     }
     
     private static String FormatTime(int seconds, bool withHours = true)
     {
         return TimeSpan.FromSeconds(seconds).ToString(withHours ? @"hh\:mm\:ss" : @"mm\:ss");
+    }
+    
+    private static String FormatRemaining(int seconds)
+    {
+        var timespan = TimeSpan.FromSeconds(seconds);
+        return (timespan.Days >= 1 ? timespan.Days + " Days and " : "") + timespan.ToString(@"hh\:mm\:ss");
     }
 }

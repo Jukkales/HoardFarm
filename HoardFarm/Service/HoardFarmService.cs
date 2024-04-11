@@ -102,11 +102,10 @@ public class HoardFarmService : IDisposable
     private unsafe bool SearchLogic()
     {
         HoardModeStatus = "Searching";
-        chestIds.Clear();
         var chests = ObjectTable.Where(e => ChestIDs.Contains(e.DataId)).Select(e => e.ObjectId).Distinct().ToList();
         chests.ForEach(e =>
         {
-            if (!visitedChestIds.Contains(e))
+            if (!visitedChestIds.Contains(e) && !chestIds.Contains(e))
             {
                 chestIds.Add(e);
             }
@@ -114,8 +113,9 @@ public class HoardFarmService : IDisposable
 
         if (!TaskManager.IsBusy)
         {
-            var nextChest = chestIds.MinBy(id => ObjectTable.First(e => e.ObjectId == id).Position.Distance(Player.GameObject->Position));
+            var nextChest = chestIds.MaxBy(id => ObjectTable.First(e => e.ObjectId == id).Position.Distance(Player.GameObject->Position));
             visitedChestIds.Add(nextChest);
+            chestIds.Remove(nextChest);
             
             if (!Concealment)
             {
@@ -138,6 +138,9 @@ public class HoardFarmService : IDisposable
 
     private void OnTimerUpdate(object? sender, ElapsedEventArgs e)
     {
+        SessionTime++;
+        Config.OverallTime++;
+        
         if (!NavmeshIPC.NavIsReady())
         {
             HoardModeStatus = "Waiting Navmesh";
@@ -230,9 +233,6 @@ public class HoardFarmService : IDisposable
                 }
             }
         }
-
-        SessionTime++;
-        Config.OverallTime++;
     }
 
     private void FindHoardPosition()
@@ -295,6 +295,7 @@ public class HoardFarmService : IDisposable
             hoardFound = true;
             SessionFoundHoards++;
             Config.OverallFoundHoards++;
+            Achievements.Progress++;
             HoardModeStatus = "Done";
         }
     }

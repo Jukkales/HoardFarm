@@ -16,6 +16,7 @@ namespace HoardFarm;
 public sealed class HoardFarm : IDalamudPlugin
 {
     private readonly HoardFarmService hoardFarmService;
+    private readonly AchievementService achievementService;
     private readonly MainWindow mainWindow;
     private readonly ConfigWindow configWindow;
     public WindowSystem WindowSystem = new("HoardFarm");
@@ -42,6 +43,9 @@ public sealed class HoardFarm : IDalamudPlugin
 
         hoardFarmService = new HoardFarmService();
         HoardService = hoardFarmService;
+        
+        achievementService = new AchievementService();
+        Achievements = achievementService;
 
         PluginInterface.UiBuilder.Draw += DrawUI;
         PluginInterface.UiBuilder.OpenMainUi += ShowMainWindow;
@@ -73,6 +77,7 @@ public sealed class HoardFarm : IDalamudPlugin
         mainWindow.Dispose();
         configWindow.Dispose();
         hoardFarmService.Dispose();
+        achievementService.Dispose();
         
         Framework.Update -= FrameworkUpdate;
     }
@@ -84,6 +89,7 @@ public sealed class HoardFarm : IDalamudPlugin
 
     public void ShowMainWindow()
     {
+        Achievements.UpdateProgress();
         mainWindow.IsOpen = true;
     }
     
