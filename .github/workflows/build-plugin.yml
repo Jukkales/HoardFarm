@@ -36,13 +36,13 @@ jobs:
         with:
             artifacts: "./HoardFarm/bin/x64/Release/HoardFarm/latest.zip"
             name: ${{ github.event.head_commit.message }}
-            makeLatest: true
+            draft: true
 
       - run: |
           rm -R ./HoardFarm/bin/x64/Release/HoardFarm
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v2.2.1
+        uses: actions/upload-artifact@v4
         with:
           name: latest
           path: ./HoardFarm/bin/x64/Release/
