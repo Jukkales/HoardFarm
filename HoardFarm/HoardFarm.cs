@@ -110,7 +110,10 @@ public sealed class HoardFarm : IDalamudPlugin
                 return;
             case "d":
             case "disable":
-                HoardService.HoardMode = false;
+                if (HoardService.HoardMode)
+                {
+                    HoardService.FinishRun = true;
+                }
                 return;
             case "t":
             case "toggle":

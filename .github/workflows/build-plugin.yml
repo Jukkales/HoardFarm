@@ -3,6 +3,8 @@ on:
   push:
     branches: 
       - 'main'
+    tags:
+        - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
@@ -14,9 +16,10 @@ jobs:
             submodules: true
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x.x'
+          cache: true
 
       - name: Restore
         run: dotnet restore

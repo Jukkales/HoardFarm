@@ -22,13 +22,13 @@ public class HoardFarmService : IDisposable
     public int SessionRuns;
     public int SessionFoundHoards;
     public int SessionTime;
+    public bool FinishRun;
 
     private bool hoardFound;
     private bool hoardAvailable;
     private bool intuitionUsed;
     private bool movingToHoard;
     private bool searchMode;
-    private bool finishRun;
     private Vector3 hoardPosition = Vector3.Zero;
     private readonly List<uint> chestIds = [];
     private readonly List<uint> visitedChestIds = [];
@@ -96,7 +96,7 @@ public class HoardFarmService : IDisposable
         movingToHoard = false;
         hoardAvailable = false;
         searchMode = false;
-        finishRun = false;
+        FinishRun = false;
     }
 
     private unsafe bool SearchLogic()
@@ -156,9 +156,9 @@ public class HoardFarmService : IDisposable
         
         if (!TaskManager.IsBusy && hoardModeActive)
         {
-            if (CheckDone() && !finishRun)
+            if (CheckDone() && !FinishRun)
             {
-                finishRun = true;
+                FinishRun = true;
                 return;
             }
             if (!InHoH && !InRubySea && NotBusy() && !KyuseiInteractable())
@@ -169,7 +169,7 @@ public class HoardFarmService : IDisposable
             
             if (InRubySea && NotBusy() && KyuseiInteractable())
             {
-                if (finishRun)
+                if (FinishRun)
                 {
                     HoardModeStatus = "Finished";
                     HoardMode = false;
