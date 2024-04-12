@@ -10,7 +10,7 @@ using ImGuiNET;
 
 namespace HoardFarm.Windows;
 
-public class MainWindow() : Window("Hoard Farm", ImGuiWindowFlags.AlwaysAutoResize), IDisposable
+public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm", ImGuiWindowFlags.AlwaysAutoResize), IDisposable
 {
     private readonly Configuration conf = Config;
 
@@ -56,6 +56,7 @@ public class MainWindow() : Window("Hoard Farm", ImGuiWindowFlags.AlwaysAutoResi
         }
         ImGui.Separator();
         
+        ImGui.BeginGroup();
         ImGui.Text("Savegame:");
         ImGui.Indent(15);
         var save = conf.HoardModeSave;
@@ -70,6 +71,49 @@ public class MainWindow() : Window("Hoard Farm", ImGuiWindowFlags.AlwaysAutoResi
             Config.Save();
         }
         ImGui.Unindent(15);
+        ImGui.EndGroup();
+        
+        ImGui.SameLine(170);
+        
+        ImGui.BeginGroup();
+        ImGui.Text("Farm Mode:");
+        ImGui.Indent(15);
+        var farmMode = conf.HoardFarmMode;
+        if (ImGui.RadioButton("Efficiency", ref farmMode, 0))
+        {
+            conf.HoardFarmMode = farmMode;
+            Config.Save();
+        }
+        ImGui.SameLine();
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGui.Text(FontAwesomeIcon.QuestionCircle.ToIconString());
+        ImGui.PopFont();
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Efficiency mode will search and try to find every hoard.\n" +
+                             ">20%% of the hoards are unreachable from start.\n" +
+                             "It will take some seconds to find it.\n" +
+                             "This mode is still recommended.");
+        }
+        
+        if(ImGui.RadioButton("Time", ref farmMode, 1))
+        {
+            conf.HoardFarmMode = farmMode;
+            Config.Save();
+        }
+        ImGui.SameLine();
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGui.Text(FontAwesomeIcon.QuestionCircle.ToIconString());
+        ImGui.PopFont();
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Time mode will NOT search for hoards.\n" +
+                             "It instantly leaves if the hoard is unreachable. \n" +
+                             "Faster runs but you will miss a lot of hoards (and a bit safer)");
+        }
+        ImGui.Unindent(15);
+        ImGui.EndGroup();
+        
         ImGui.Separator();
         ImGui.Text("Statistics:");
         

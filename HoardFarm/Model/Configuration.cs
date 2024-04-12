@@ -9,6 +9,7 @@ public class Configuration : IPluginConfiguration
     public int Version { get; set; } = 1;
     
     public int HoardModeSave { get; set; }
+    public int HoardFarmMode { get; set; }
     public int StopAfter { get; set; } = 50;
     public int StopAfterMode { get; set; } = 1;
     public int OverallRuns { get; set; }

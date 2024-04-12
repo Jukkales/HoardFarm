@@ -207,6 +207,11 @@ public class HoardFarmService : IDisposable
                         }
                         else
                         {
+                            if (Config.HoardFarmMode == 1)
+                            {
+                                LeaveDuty();
+                                return;
+                            }
                             if (!hoardFound)
                             {
                                 Enqueue(new UsePomanderTask(Pomander.Concealment), "Use Concealment");
@@ -217,22 +222,24 @@ public class HoardFarmService : IDisposable
 
                         if (hoardFound)
                         {
-                            HoardModeStatus = "Leaving";
-                            SessionRuns++;
-                            Config.OverallRuns++;
-                            Enqueue(new LeaveDutyTask(), "Leave Duty");
+                            LeaveDuty();
                         }
                     }
                     else
                     {
-                        HoardModeStatus = "Leaving";
-                        SessionRuns++;
-                        Config.OverallRuns++;
-                        Enqueue(new LeaveDutyTask(), "Leave Duty");
+                        LeaveDuty();
                     }
                 }
             }
         }
+    }
+
+    private void LeaveDuty()
+    {
+        HoardModeStatus = "Leaving";
+        SessionRuns++;
+        Config.OverallRuns++;
+        Enqueue(new LeaveDutyTask(), "Leave Duty");
     }
 
     private void FindHoardPosition()

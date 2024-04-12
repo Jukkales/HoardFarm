@@ -48,14 +48,20 @@ public sealed class HoardFarm : IDalamudPlugin
         Achievements = achievementService;
 
         PluginInterface.UiBuilder.Draw += DrawUI;
-        PluginInterface.UiBuilder.OpenMainUi += ShowMainWindow;
+        PluginInterface.UiBuilder.OpenMainUi += () => OnCommand();
         PluginInterface.UiBuilder.OpenConfigUi += ShowConfigWindow;
         Framework.Update += FrameworkUpdate;
         
         PluginService.TaskManager = new TaskManager();
         
         
-        EzCmd.Add("/hoardfarm", (_, _) => ShowMainWindow() ,"Open the Hoard Farm window.");
+        EzCmd.Add("/hoardfarm", (_, args) => OnCommand(args) ,
+          "Opens the Hoard Farm window.\n" +
+                    "/hoardfarm config | c → Open the config window.\n" +
+                    "/hoardfarm enable | e → Enable farming mode.\n" +
+                    "/hoardfarm disable | d → Disable farming mode.\n" +
+                    "/hoardfarm toggle | t → Toggle farming mode.\n"
+          );
 
         CultureInfo.DefaultThreadCurrentUICulture = ClientState.ClientLanguage switch
         {
@@ -80,6 +86,7 @@ public sealed class HoardFarm : IDalamudPlugin
         achievementService.Dispose();
         
         Framework.Update -= FrameworkUpdate;
+        ECommonsMain.Dispose();
     }
 
     private void DrawUI()
@@ -87,10 +94,33 @@ public sealed class HoardFarm : IDalamudPlugin
         WindowSystem.Draw();
     }
 
-    public void ShowMainWindow()
+    public void OnCommand(string? args = null)
     {
-        Achievements.UpdateProgress();
-        mainWindow.IsOpen = true;
+        args = args?.Trim().ToLower() ?? "";
+        
+        switch (args)
+        {
+            case "c":
+            case "config":
+                ShowConfigWindow();
+                return;
+            case "e":
+            case "enable":
+                HoardService.HoardMode = true;
+                return;
+            case "d":
+            case "disable":
+                HoardService.HoardMode = false;
+                return;
+            case "t":
+            case "toggle":
+                HoardService.HoardMode = !HoardService.HoardMode;
+                return;
+            default:
+                Achievements.UpdateProgress();
+                mainWindow.IsOpen = true;
+                break;
+        }
     }
     
     public void ShowConfigWindow()
