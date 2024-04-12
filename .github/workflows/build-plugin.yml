@@ -1,14 +1,16 @@
 name: Build Plugin
 on:
   push:
-    branches: 
-      - 'main'
+    #branches: 
+    #  - 'main'
     tags:
         - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+        contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +33,13 @@ jobs:
       - name: Build
         run: |
           dotnet build --no-restore --configuration Release --nologo
+
+      - uses: ncipollo/release-action@v1
+        with:
+            artifacts: "./HoardFarm/bin/x64/Release/HoardFarm/latest.zip"
+            name: ${{ github.event.head_commit.message }}
+            draft: true
+            #makeLatest: true
 
       - run: |
           rm -R ./HoardFarm/bin/x64/Release/HoardFarm

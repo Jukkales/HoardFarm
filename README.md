@@ -1,5 +1,6 @@
 [![Build](https://github.com/Jukkales/HoardFarm/actions/workflows/build-plugin.yml/badge.svg)](https://github.com/Jukkales/HoardFarm/actions/workflows/build-plugin.yml)
 [![Github Downloads (total)](https://img.shields.io/github/downloads/Jukkales/HoardFarm/total.svg)]()
+[![Last Version](https://img.shields.io/github/v/release/Jukkales/HoardFarm)]()
 
 # HoardFarm
 
