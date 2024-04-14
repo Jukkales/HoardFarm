@@ -17,6 +17,7 @@ namespace HoardFarm.Service;
 public class HoardFarmService : IDisposable
 {
     public string HoardModeStatus = "";
+    public string HoardModeError = "";
     private bool hoardModeActive;
     private readonly Timer updateTimer;
     public int SessionRuns;
@@ -84,6 +85,7 @@ public class HoardFarmService : IDisposable
         SessionFoundHoards = 0;
         updateTimer.Enabled = true;
         HoardModeStatus = "Running";
+        HoardModeError = "";
         ChatGui.ChatMessage += OnChatMessage;
     }
 
@@ -146,6 +148,7 @@ public class HoardFarmService : IDisposable
             HoardModeStatus = "Waiting Navmesh";
             return;
         }
+        
         if (searchMode && hoardPosition == Vector3.Zero)
         {
             if (!SearchLogic())
@@ -159,6 +162,14 @@ public class HoardFarmService : IDisposable
             if (CheckDone() && !FinishRun)
             {
                 FinishRun = true;
+                return;
+            }
+            if (Player.Territory == HoHMapId1)
+            {
+                HoardModeStatus = "Please prepare";
+                HoardModeError = "Please prepare before starting.\nFloor One is not supported.";
+                FinishRun = true;
+                Enqueue(new LeaveDutyTask(), "Leave Duty");
                 return;
             }
             if (!InHoH && !InRubySea && NotBusy() && !KyuseiInteractable())
@@ -176,15 +187,31 @@ public class HoardFarmService : IDisposable
                     return;
                 }
                 HoardModeStatus = "Entering HoH";
+                if (Config.ParanoidMode)
+                {
+                    EnqueueWait(Random.Shared.Next(3000, 6000));
+                }
                 Enqueue(new EnterHeavenOnHigh(), "Enter HoH");
             }
 
             if (InHoH && NotBusy())
             {
+                if (!CheckMinimalSetup())
+                {
+                    HoardModeStatus = "Please prepare";
+                    HoardModeError = "Please prepare before starting.\nYou need at least one Intuition Pomander\nand one Concealment.";
+                    FinishRun = true;
+                    Enqueue(new LeaveDutyTask(), "Leave Duty");
+                    return;
+                }
+                
                 if (!intuitionUsed)
                 {
-                    Enqueue(new UsePomanderTask(Pomander.Intuition), "Use Intuition");
-                    intuitionUsed = true;
+                    if (CanUsePomander(Pomander.Intuition))
+                    {
+                        Enqueue(new UsePomanderTask(Pomander.Intuition), "Use Intuition");
+                        intuitionUsed = true;
+                    }
                 }
                 else
                 {
@@ -232,6 +259,20 @@ public class HoardFarmService : IDisposable
                 }
             }
         }
+    }
+
+    private bool CheckMinimalSetup()
+    {
+        if (!CanUsePomander(Pomander.Intuition))
+        {
+            return false;
+        }
+        if (CanUsePomander(Pomander.Concealment))
+        {
+            return true;
+        }
+
+        return CanUsePomander(Pomander.Safety) && CanUseMagicite();
     }
 
     private void LeaveDuty()

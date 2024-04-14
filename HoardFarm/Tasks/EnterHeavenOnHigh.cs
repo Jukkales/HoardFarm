@@ -9,11 +9,22 @@ namespace HoardFarm.Tasks;
 
 public class EnterHeavenOnHigh : IBaseTask
 {
-    public bool? Run()
+    public unsafe bool? Run()
     {
+        TryGetAddonByName<AtkUnitBase>("DeepDungeonMenu", out var menu);
+        TryGetAddonByName<AtkUnitBase>("DeepDungeonSaveData", out var save);
         Enqueue(WaitForYesAlreadyDisabledTask, "Disable Yes Already");
-        Enqueue(InteractKyusei, "Interact Kyusei");
-        Enqueue(EnterDuty, "Enter Heaven on High");
+        PluginLog.Information("menu: {menu}, save: {save}");
+        if (menu == null && save == null)
+        {
+            Enqueue(InteractKyusei, "Interact Kyusei");
+        }
+
+        if ((menu == null && save == null) || (menu != null && save == null))
+        {
+            Enqueue(EnterDuty, "Enter Heaven on High");
+        }
+
         Enqueue(SelectSave, "Select Save");
         Enqueue(new SelectYesnoTask(ConfirmPartyKoMessageId), "Confirm Party KO");
         Enqueue(ConfirmDuty, "Confirm Duty");
@@ -58,6 +69,17 @@ public class EnterHeavenOnHigh : IBaseTask
         {
             Callback.Fire(menu, true, Config.HoardModeSave);
             return true;
+        }
+
+        return false;
+    }
+
+    private static unsafe bool VerifySave()
+    {
+        if (TryGetAddonByName<AtkUnitBase>("DeepDungeonSaveData", out var menu) && IsAddonReady(menu))
+        {
+            var saveId = (uint)(Config.HoardModeSave == 0 ? 21002 : 21001);
+            GetNodeByIDChain(menu->GetRootNode(), [6, 2]);
         }
 
         return false;

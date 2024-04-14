@@ -15,6 +15,9 @@ public class Configuration : IPluginConfiguration
     public int OverallRuns { get; set; }
     public int OverallFoundHoards { get; set; }
     public int OverallTime { get; set; }
+    public bool ShowOverlay { get; set; } = true;
+    public bool ParanoidMode { get; set; } = false;
+    
 
     public void Save()
     {

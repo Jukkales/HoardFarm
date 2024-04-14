@@ -1,27 +1,22 @@
 ﻿using System;
+using System.Diagnostics;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using ECommons.ImGuiMethods;
 using HoardFarm.IPC;
 using HoardFarm.Model;
-using HoardFarm.Service;
 using ImGuiNET;
+using static HoardFarm.ImGuiEx.ImGuiEx;
 
 namespace HoardFarm.Windows;
 
-public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm", ImGuiWindowFlags.AlwaysAutoResize), IDisposable
+public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm", ImGuiWindowFlags.AlwaysAutoResize)
 {
     private readonly Configuration conf = Config;
-
-    public void Dispose() { }
-
+    
     public override void Draw()
     {
-        if (ImGuiEx.AddHeaderIcon("OpenConfig", FontAwesomeIcon.Cog, new ImGuiEx.HeaderIconOptions() { Tooltip = "Open Config" }))
-        {
-            P.ShowConfigWindow();
-        }
+        HeaderIcons();
 
         using (_ = ImRaii.Disabled(!PluginInstalled(NavmeshIPC.Name)))
         {
@@ -170,7 +165,40 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
                 $"You will need at least {FormatRemaining((20000 - Achievements.Progress) * overallTimeAverage)}\nof farming to complete the achievement.");
         }
 
+        if (HoardService.HoardModeError != string.Empty) {
+            ImGui.Separator();
+            ImGui.PushFont(UiBuilder.IconFont);
+            ImGui.TextColored(new System.Numerics.Vector4(1, 0, 0, 1), FontAwesomeIcon.ExclamationTriangle.ToIconString());
+            ImGui.PopFont();
+            ImGui.SameLine();
+            ImGui.TextColored(new System.Numerics.Vector4(1, 0, 0, 1),"Unable to run:\n");
+            ImGui.Text(HoardService.HoardModeError);
+        }
+        
+    }
 
+    private static void HeaderIcons()
+    {
+        if (AddHeaderIcon("OpenConfig", FontAwesomeIcon.Cog, new HeaderIconOptions { Tooltip = "Open Config" }))
+        {
+            P.ShowConfigWindow();
+        }
+        if (AddHeaderIcon("OpenHelp", FontAwesomeIcon.QuestionCircle, new HeaderIconOptions { Tooltip = "Open Help" }))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/Jukkales/HoardFarm/wiki/How-to-run",
+                UseShellExecute = true
+            });
+        }
+        if (AddHeaderIcon("KofiLink", FontAwesomeIcon.Heart, new HeaderIconOptions { Tooltip = "Support me ♥",  Color = 0xFF3030D0 }))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://ko-fi.com/jukkales",
+                UseShellExecute = true
+            });
+        }
     }
     
     private static String FormatTime(int seconds, bool withHours = true)

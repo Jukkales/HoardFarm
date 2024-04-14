@@ -2,21 +2,21 @@
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using HoardFarm.Model;
 
 namespace HoardFarm.Tasks;
 
-public class UsePomanderTask(Pomander pomander) : IBaseTask
+public class UseMagiciteTask() : IBaseTask
 {
     public unsafe bool? Run()
     {
         if (TryGetAddonByName<AtkUnitBase>("DeepDungeonStatus", out var addon) && IsAddonReady(addon))
         {
-            if (CanUsePomander(pomander))
+            if (CanUseMagicite())
             {
-                Callback.Fire(addon, true, 11, (int)pomander);
-                EnqueueWaitImmediate(2000);
+                Callback.Fire(addon, true, 12, 0);
+                EnqueueWaitImmediate(3000);
             }
+
             return true;
         }
 
@@ -26,4 +26,5 @@ public class UsePomanderTask(Pomander pomander) : IBaseTask
 
         return false;
     }
+    
 }

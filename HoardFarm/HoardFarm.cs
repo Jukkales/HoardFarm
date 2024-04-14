@@ -19,6 +19,7 @@ public sealed class HoardFarm : IDalamudPlugin
     private readonly AchievementService achievementService;
     private readonly MainWindow mainWindow;
     private readonly ConfigWindow configWindow;
+    private readonly DeepDungeonMenuOverlay deepDungeonMenuOverlay;
     public WindowSystem WindowSystem = new("HoardFarm");
 
     public HoardFarm(DalamudPluginInterface? pluginInterface)
@@ -37,9 +38,11 @@ public sealed class HoardFarm : IDalamudPlugin
 
         mainWindow = new MainWindow();
         configWindow = new ConfigWindow();
+        deepDungeonMenuOverlay = new DeepDungeonMenuOverlay();
 
         WindowSystem.AddWindow(mainWindow);
         WindowSystem.AddWindow(configWindow);
+        WindowSystem.AddWindow(deepDungeonMenuOverlay);
 
         hoardFarmService = new HoardFarmService();
         HoardService = hoardFarmService;
@@ -80,8 +83,6 @@ public sealed class HoardFarm : IDalamudPlugin
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
-        mainWindow.Dispose();
-        configWindow.Dispose();
         hoardFarmService.Dispose();
         achievementService.Dispose();
         
@@ -120,8 +121,7 @@ public sealed class HoardFarm : IDalamudPlugin
                 HoardService.HoardMode = !HoardService.HoardMode;
                 return;
             default:
-                Achievements.UpdateProgress();
-                mainWindow.IsOpen = true;
+                ShowMainWindow();
                 break;
         }
     }
@@ -129,5 +129,14 @@ public sealed class HoardFarm : IDalamudPlugin
     public void ShowConfigWindow()
     {
         configWindow.IsOpen = true;
+    }
+    
+    public void ShowMainWindow()
+    {
+        if (!mainWindow.IsOpen)
+        {
+            Achievements.UpdateProgress();
+            mainWindow.IsOpen = true;
+        }
     }
 }
