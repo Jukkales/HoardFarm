@@ -196,17 +196,17 @@ public class HoardFarmService : IDisposable
 
             if (InHoH && NotBusy())
             {
-                if (!CheckMinimalSetup())
-                {
-                    HoardModeStatus = "Please prepare";
-                    HoardModeError = "Please prepare before starting.\nYou need at least one Intuition Pomander\nand one Concealment.";
-                    FinishRun = true;
-                    Enqueue(new LeaveDutyTask(), "Leave Duty");
-                    return;
-                }
-                
                 if (!intuitionUsed)
                 {
+                    if (!CheckMinimalSetup())
+                    {
+                        HoardModeStatus = "Please prepare";
+                        HoardModeError = "Please prepare before starting.\nYou need at least one Intuition Pomander\nand one Concealment.";
+                        FinishRun = true;
+                        Enqueue(new LeaveDutyTask(), "Leave Duty");
+                        return;
+                    }
+                    
                     if (CanUsePomander(Pomander.Intuition))
                     {
                         Enqueue(new UsePomanderTask(Pomander.Intuition), "Use Intuition");
