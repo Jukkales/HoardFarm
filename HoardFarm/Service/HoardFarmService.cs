@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Timers;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Utility;
+using ECommons.DalamudServices;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using HoardFarm.IPC;
 using HoardFarm.Model;
 using HoardFarm.Tasks;
@@ -17,6 +20,8 @@ namespace HoardFarm.Service;
 
 public class HoardFarmService : IDisposable
 {
+    private record MapObject(uint ObjectId, uint DataId, Vector3 Position);
+    
     public string HoardModeStatus = "";
     public string HoardModeError = "";
     private bool hoardModeActive;
@@ -31,12 +36,14 @@ public class HoardFarmService : IDisposable
     private bool intuitionUsed;
     private bool movingToHoard;
     private bool searchMode;
+    private bool safetyUsed;
     private Vector3 hoardPosition = Vector3.Zero;
-    private readonly List<uint> chestIds = [];
-    private readonly List<uint> visitedChestIds = [];
+    private readonly List<uint> visitedObjectIds = [];
     private readonly string hoardFoundMessage;
     private readonly string senseHoardMessage;
     private readonly string noHoardMessage;
+    private readonly Dictionary<uint, MapObject> objectPositions = new();
+    private DateTime runStarted;
 
     public HoardFarmService()
     {
@@ -100,34 +107,37 @@ public class HoardFarmService : IDisposable
         hoardAvailable = false;
         searchMode = false;
         FinishRun = false;
+        safetyUsed = false;
+        objectPositions.Clear();
+        runStarted = DateTime.Now;
     }
 
     private unsafe bool SearchLogic()
     {
         HoardModeStatus = "Searching";
-        chestIds.Clear();
-        var chests = ObjectTable.Where(e => ChestIDs.Contains(e.DataId)).Select(e => e.ObjectId).Distinct().ToList();
-        chests.ForEach(e =>
-        {
-            if (!visitedChestIds.Contains(e))
-            {
-                chestIds.Add(e);
-            }
-        });
 
-        if (!TaskManager.IsBusy)
-        {
-            var nextChest = chestIds.MaxBy(id => ObjectTable.First(e => e.ObjectId == id).Position.Distance(Player.GameObject->Position));
-            visitedChestIds.Add(nextChest);
-            
-            if (!Concealment)
+        if (!TaskManager.IsBusy) {
+            if (!objectPositions.Where(e => !visitedObjectIds.Contains(e.Value.ObjectId))
+                                .Where(e => ChestIDs.Contains(e.Value.DataId))
+                                .OrderBy(e => e.Value.Position.Distance(Player.GameObject->Position))
+                                .Select(e => e.Value)
+                                .TryGetFirst(out var next))
             {
-                Enqueue(new UsePomanderTask(Pomander.Concealment), "Use Concealment");
+                if (!objectPositions.Where(e => !visitedObjectIds.Contains(e.Value.ObjectId))
+                                    .OrderBy(e => e.Value.Position.Distance(Player.GameObject->Position))
+                                    .Select(e => e.Value)
+                                    .TryGetFirst(out next))
+                {
+                    // We should never reach here normally .. but "never" is still a chance > 0% ;)
+                    LeaveDuty("Unreachable");
+                    return true;
+                }
             }
             
-            Enqueue(new PathfindTask(ObjectTable.First(e => e.ObjectId == nextChest).Position, true), 60 * 1000, "Searching " + nextChest);
+            visitedObjectIds.Add(next!.ObjectId);
+            Enqueue(new PathfindTask(next.Position, true), 60 * 1000, "Searching " + next.ObjectId);
         }
-        
+
         FindHoardPosition();
         if (hoardPosition != Vector3.Zero)
         {
@@ -148,22 +158,21 @@ public class HoardFarmService : IDisposable
             return;
         }
         
-        SessionTime++;
-        Config.OverallTime++;
-        
         if (!NavmeshIPC.NavIsReady())
         {
             HoardModeStatus = "Waiting Navmesh";
             return;
         }
         
+        SessionTime++;
+        Config.OverallTime++;
+        
+        UpdateObjectPositions();
+        SafetyChecks();
+        
         if (searchMode && hoardPosition == Vector3.Zero)
-        {
             if (!SearchLogic())
-            {
                 return;
-            }
-        }
         
         if (!TaskManager.IsBusy && hoardModeActive)
         {
@@ -190,7 +199,7 @@ public class HoardFarmService : IDisposable
                 {
                     HoardModeStatus = "Finished";
                     HoardMode = false;
-                    return;
+                    return; 
                 }
 
                 if (CheckRetainer())
@@ -234,10 +243,10 @@ public class HoardFarmService : IDisposable
                         {
                             if (!movingToHoard)
                             {
-                                if (!Concealment)
-                                {
-                                    Enqueue(new UsePomanderTask(Pomander.Concealment, false), "Use Concealment");
-                                }
+                                // if (!Concealment)
+                                // {
+                                //     Enqueue(new UsePomanderTask(Pomander.Concealment, false), "Use Concealment");
+                                // }
                                 Enqueue(new PathfindTask(hoardPosition, true, 1.5f), 60 * 1000, "Move to Hoard");
                                 movingToHoard = true;
                                 HoardModeStatus = "Move to Hoard";
@@ -270,6 +279,65 @@ public class HoardFarmService : IDisposable
                 }
             }
         }
+    }
+
+    private void SafetyChecks()
+    {
+        if (InHoH && intuitionUsed)
+        {
+            if (DateTime.Now.Subtract(runStarted).TotalSeconds > 130 && !Svc.Condition[ConditionFlag.InCombat])
+            {
+                TaskManager.Abort();
+                NavmeshIPC.PathStop();
+                LeaveDuty("Timeout");
+                return;
+            }
+            
+            if (IsMoving())
+            {
+                if (!Concealment)
+                {
+                   if (CanUsePomander(Pomander.Concealment)) 
+                   {
+                       if (EzThrottler.Check("Concealment"))
+                       {
+                           EzThrottler.Throttle("Concealment", 2000);
+                           new UsePomanderTask(Pomander.Concealment, false).Run();
+                           return; // start next iteration
+                       }
+                   } else if (CanUsePomander(Pomander.Safety) && !safetyUsed && EzThrottler.Check("Concealment"))
+                   {
+                       if (EzThrottler.Check("Safety"))
+                       {
+                           EzThrottler.Throttle("Safety", 2000);
+                           new UsePomanderTask(Pomander.Safety, false).Run();
+                           safetyUsed = true;
+                           return; // start next iteration
+                       }
+                   }
+                }
+            }
+
+            if (Svc.Condition[ConditionFlag.InCombat])
+            {
+                if (CanUseMagicite() && EzThrottler.Check("Magicite"))
+                {
+                    EzThrottler.Throttle("Magicite", 6000);
+                    new UseMagiciteTask().Run();
+                }
+            }
+            
+            if (Svc.Condition[ConditionFlag.Unconscious])
+            {
+                LeaveDuty("Player died");
+            }
+        }
+    }
+
+    private void UpdateObjectPositions()
+    {
+        foreach (var gameObject in ObjectTable)
+            objectPositions.TryAdd(gameObject.ObjectId, new MapObject(gameObject.ObjectId, gameObject.DataId, gameObject.Position));
     }
 
     private bool CheckRetainer()

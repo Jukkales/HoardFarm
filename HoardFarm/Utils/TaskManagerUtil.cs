@@ -53,16 +53,16 @@ public static class TaskManagerUtil
         TaskManager.EnqueueImmediate(task.Run, timeLimitMs, name);
     }
     
-    public static void EnqueueImmediate(BaseTask task, string? name = null) => Enqueue(task, 10000, name);
-    public static void EnqueueImmediate(BaseTask task) => Enqueue(task, 10000);
+    public static void EnqueueImmediate(BaseTask task, string? name = null) => EnqueueImmediate(task, 10000, name);
+    public static void EnqueueImmediate(BaseTask task) => EnqueueImmediate(task, 10000);
     
     public static void EnqueueImmediate(Func<bool?> task, int timeLimitMs = 10000, string? name = null)
     {
         TaskManager.EnqueueImmediate(task, timeLimitMs, name);
     }
     
-    public static void EnqueueImmediate(Func<bool?> task, string? name = null) => Enqueue(task, 10000, name);
-    public static void EnqueueImmediate(Func<bool?> task) => Enqueue(task, 10000);
+    public static void EnqueueImmediate(Func<bool?> task, string? name = null) => EnqueueImmediate(task, 10000, name);
+    public static void EnqueueImmediate(Func<bool?> task) => EnqueueImmediate(task, 10000);
     
     public static void EnqueueWaitImmediate(int delayMS)
     {

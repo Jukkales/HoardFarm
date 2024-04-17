@@ -32,6 +32,7 @@ public class RetainerService : IDisposable
     public void Dispose()
     {
         RetainerApi.OnRetainerPostprocessStep -= CheckRetainerPostProcess;
+        updateTimer.Dispose();
     }
 
     public void StartProcess()

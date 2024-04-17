@@ -2,6 +2,12 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.0.0]
+- safety and magicite usage if no concealment is available
+- fixed some bugs with the new retainers
+- improved search logic
+- timeout leave
+
 ## [1.4.0.0]
 - run retainers between runs
 - speed up some things to save 1-2 seconds per run
