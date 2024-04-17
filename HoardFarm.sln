@@ -7,6 +7,8 @@ Project("{F9961719-46EC-4349-A596-03D00B234804}") = "HoardFarm", "HoardFarm\Hoar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommons", "ECommons\ECommons\ECommons.csproj", "{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoRetainerAPI", "AutoRetainerAPI\AutoRetainerAPI\AutoRetainerAPI.csproj", "{C0294C05-FD43-4EDF-9A4E-3E53DD4BBC88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -25,6 +27,10 @@ Global
 		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Debug|x64.Build.0 = Debug|x64
 		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Release|x64.ActiveCfg = Release|x64
 		{D20CCCF7-6F38-4A04-BE73-5E501DACCAA2}.Release|x64.Build.0 = Release|x64
+		{C0294C05-FD43-4EDF-9A4E-3E53DD4BBC88}.Debug|x64.ActiveCfg = Debug|x64
+		{C0294C05-FD43-4EDF-9A4E-3E53DD4BBC88}.Debug|x64.Build.0 = Debug|x64
+		{C0294C05-FD43-4EDF-9A4E-3E53DD4BBC88}.Release|x64.ActiveCfg = Release|x64
+		{C0294C05-FD43-4EDF-9A4E-3E53DD4BBC88}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,6 +10,7 @@ using ECommons.GameHelpers;
 using HoardFarm.IPC;
 using HoardFarm.Model;
 using HoardFarm.Tasks;
+using HoardFarm.Tasks.TaskGroups;
 using Lumina.Excel.GeneratedSheets;
 
 namespace HoardFarm.Service;
@@ -140,6 +141,13 @@ public class HoardFarmService : IDisposable
 
     private void OnTimerUpdate(object? sender, ElapsedEventArgs e)
     {
+        // Retainer do not increase runtime
+        if (RetainerScv.Running)
+        {
+            HoardModeStatus = "Retainer Running";
+            return;
+        }
+        
         SessionTime++;
         Config.OverallTime++;
         
@@ -166,16 +174,14 @@ public class HoardFarmService : IDisposable
             }
             if (Player.Territory == HoHMapId1)
             {
-                HoardModeStatus = "Please prepare";
-                HoardModeError = "Please prepare before starting.\nFloor One is not supported.";
-                FinishRun = true;
-                Enqueue(new LeaveDutyTask(), "Leave Duty");
+                Error("Please prepare before starting.\nFloor One is not supported.");
                 return;
             }
             if (!InHoH && !InRubySea && NotBusy() && !KyuseiInteractable())
             {
                 HoardModeStatus = "Moving to HoH";
-                Enqueue(new MoveToHoHTask(), "Move to HoH");
+                Enqueue(new MoveToHoHTask());
+                EnqueueWait(1000);
             }
             
             if (InRubySea && NotBusy() && KyuseiInteractable())
@@ -186,12 +192,19 @@ public class HoardFarmService : IDisposable
                     HoardMode = false;
                     return;
                 }
+
+                if (CheckRetainer())
+                {
+                    // Do retainers first
+                    return;
+                }
+                
                 HoardModeStatus = "Entering HoH";
                 if (Config.ParanoidMode)
                 {
                     EnqueueWait(Random.Shared.Next(3000, 6000));
                 }
-                Enqueue(new EnterHeavenOnHigh(), "Enter HoH");
+                Enqueue(new EnterHeavenOnHigh());
             }
 
             if (InHoH && NotBusy())
@@ -200,10 +213,8 @@ public class HoardFarmService : IDisposable
                 {
                     if (!CheckMinimalSetup())
                     {
-                        HoardModeStatus = "Please prepare";
-                        HoardModeError = "Please prepare before starting.\nYou need at least one Intuition Pomander\nand one Concealment.";
-                        FinishRun = true;
-                        Enqueue(new LeaveDutyTask(), "Leave Duty");
+                        Error(
+                            "Please prepare before starting.\nYou need at least one Intuition Pomander\nand one Concealment.");
                         return;
                     }
                     
@@ -225,7 +236,7 @@ public class HoardFarmService : IDisposable
                             {
                                 if (!Concealment)
                                 {
-                                    Enqueue(new UsePomanderTask(Pomander.Concealment), "Use Concealment");
+                                    Enqueue(new UsePomanderTask(Pomander.Concealment, false), "Use Concealment");
                                 }
                                 Enqueue(new PathfindTask(hoardPosition, true, 1.5f), 60 * 1000, "Move to Hoard");
                                 movingToHoard = true;
@@ -261,6 +272,17 @@ public class HoardFarmService : IDisposable
         }
     }
 
+    private bool CheckRetainer()
+    {
+        if (Config.DoRetainers && RetainerService.CheckRetainersDone(Config.RetainerMode == 1))
+        {
+            RetainerScv.StartProcess();
+            return true;
+        }
+
+        return false;
+    }
+
     private bool CheckMinimalSetup()
     {
         if (!CanUsePomander(Pomander.Intuition))
@@ -275,12 +297,20 @@ public class HoardFarmService : IDisposable
         return CanUsePomander(Pomander.Safety) && CanUseMagicite();
     }
 
-    private void LeaveDuty()
+    private void LeaveDuty(string message = "Leaving")
     {
-        HoardModeStatus = "Leaving";
+        HoardModeStatus = message;
         SessionRuns++;
         Config.OverallRuns++;
-        Enqueue(new LeaveDutyTask(), "Leave Duty");
+        Enqueue(new LeaveDutyTask());
+    }
+
+    private void Error(string message)
+    {
+        HoardModeStatus = "Error";
+        HoardModeError = message;
+        FinishRun = true;
+        Enqueue(new LeaveDutyTask());
     }
 
     private void FindHoardPosition()
@@ -335,7 +365,8 @@ public class HoardFarmService : IDisposable
         {
             intuitionUsed = true;
             hoardAvailable = false;
-            HoardModeStatus = "No Hoard";
+            TaskManager.Abort();
+            LeaveDuty("No Hoard");
         }
         
         if (hoardFoundMessage.Equals(message.TextValue))
@@ -344,7 +375,8 @@ public class HoardFarmService : IDisposable
             SessionFoundHoards++;
             Config.OverallFoundHoards++;
             Achievements.Progress++;
-            HoardModeStatus = "Done";
+            TaskManager.Abort();
+            LeaveDuty("Done");
         }
     }
     

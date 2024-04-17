@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using AutoRetainerAPI;
 using Dalamud;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -20,6 +21,8 @@ public sealed class HoardFarm : IDalamudPlugin
     private readonly MainWindow mainWindow;
     private readonly ConfigWindow configWindow;
     private readonly DeepDungeonMenuOverlay deepDungeonMenuOverlay;
+    private readonly AutoRetainerApi autoRetainerApi;
+    private readonly RetainerService retainerService;
     public WindowSystem WindowSystem = new("HoardFarm");
 
     public HoardFarm(DalamudPluginInterface? pluginInterface)
@@ -50,6 +53,12 @@ public sealed class HoardFarm : IDalamudPlugin
         achievementService = new AchievementService();
         Achievements = achievementService;
 
+        autoRetainerApi = new AutoRetainerApi();
+        RetainerApi = autoRetainerApi;
+        
+        retainerService = new RetainerService();
+        RetainerScv = retainerService;
+
         PluginInterface.UiBuilder.Draw += DrawUI;
         PluginInterface.UiBuilder.OpenMainUi += () => OnCommand();
         PluginInterface.UiBuilder.OpenConfigUi += ShowConfigWindow;
@@ -75,6 +84,7 @@ public sealed class HoardFarm : IDalamudPlugin
         };
     }
 
+
     private void FrameworkUpdate(IFramework framework)
     {
         YesAlreadyManager.Tick();
@@ -84,7 +94,9 @@ public sealed class HoardFarm : IDalamudPlugin
     {
         WindowSystem.RemoveAllWindows();
         hoardFarmService.Dispose();
-        achievementService.Dispose();
+        
+        autoRetainerApi.Dispose();
+        retainerService.Dispose();
         
         Framework.Update -= FrameworkUpdate;
         ECommonsMain.Dispose();

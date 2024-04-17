@@ -4,13 +4,14 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HoardFarm.IPC;
+using HoardFarm.Tasks.Base;
 
 namespace HoardFarm.Tasks;
 
-public class PathfindTask(Vector3 targetPosition, bool sprint = false, float toleranceDistance = 3f)
-    : IBaseTask
+public class PathfindTask(Vector3 targetPosition, bool sprint = false, float toleranceDistance = 3f, int timeout = 60)
+    : BaseTask(timeout)
 {
-    public unsafe bool? Run()
+    public override unsafe bool? Run()
     {
         if (targetPosition.Distance(Player.GameObject->Position) <= toleranceDistance)
         {

@@ -4,7 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace HoardFarm.Service;
 
-public unsafe class AchievementService : IDisposable
+public unsafe class AchievementService
 {
     
     public delegate void ReceiveAchievementProgressDelegate(Achievement* achievement, uint id, uint current, uint max);
@@ -33,8 +33,5 @@ public unsafe class AchievementService : IDisposable
         }
         ReceiveAchievementProgressHook.Original(achievement, id, current, max);
     }
-    
-    public void Dispose()
-    {
-    }
+  
 }

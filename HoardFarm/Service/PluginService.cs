@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects;
+﻿using AutoRetainerAPI;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -43,4 +44,6 @@ public class PluginService
     public static HoardFarmService HoardService { get; set; } = null!;
     public static TaskManager TaskManager { get; set; } = null!;
     public static AchievementService Achievements { get; set; } = null!;
+    public static AutoRetainerApi RetainerApi { get; set; } = null!;
+    public static RetainerService RetainerScv { get; set; } = null!;
 }

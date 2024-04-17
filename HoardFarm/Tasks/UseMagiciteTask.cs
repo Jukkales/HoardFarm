@@ -2,12 +2,13 @@
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using HoardFarm.Tasks.Base;
 
 namespace HoardFarm.Tasks;
 
-public class UseMagiciteTask() : IBaseTask
+public class UseMagiciteTask() : BaseTask
 {
-    public unsafe bool? Run()
+    public override unsafe bool? Run()
     {
         if (TryGetAddonByName<AtkUnitBase>("DeepDungeonStatus", out var addon) && IsAddonReady(addon))
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Runtime.InteropServices;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -6,11 +7,13 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using HoardFarm.Tasks.Base;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
+#pragma warning disable CS8974 // Converting method group to non-delegate type
 
-namespace HoardFarm.Tasks;
+namespace HoardFarm.Tasks.TaskGroups;
 
-public class LeaveDutyTask : IBaseTask
+public class LeaveDutyTask : IBaseTaskGroup
 {
     [StructLayout(LayoutKind.Explicit, Size = 64)]
     public struct EventObject {
@@ -18,12 +21,14 @@ public class LeaveDutyTask : IBaseTask
         [FieldOffset(8)] public ulong Unknown8;
     }
     
-    public bool? Run()
+    public ArrayList GetTaskList()
     {
-        Enqueue(LeaveDuty, "Leave Duty");
-        Enqueue(new SelectYesnoTask(AbandonDutyMessageId).Run, "Confirm Leave");
-        Enqueue(WaitReady, "Wait Ready");
-        return true;
+        return
+        [
+            LeaveDuty,
+            new SelectYesnoTask(AbandonDutyMessageId),
+            WaitReady
+        ];
     }
     
     private static unsafe bool? LeaveDuty()
@@ -81,4 +86,6 @@ public class LeaveDutyTask : IBaseTask
 
         return false;
     }
+
+
 }
