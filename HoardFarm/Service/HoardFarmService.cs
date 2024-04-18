@@ -157,16 +157,16 @@ public class HoardFarmService : IDisposable
             HoardModeStatus = "Retainer Running";
             return;
         }
+
+        SessionTime++;
+        Config.OverallTime++;        
         
         if (!NavmeshIPC.NavIsReady())
         {
             HoardModeStatus = "Waiting Navmesh";
             return;
-        }
-        
-        SessionTime++;
-        Config.OverallTime++;
-        
+        }      
+
         UpdateObjectPositions();
         SafetyChecks();
         
