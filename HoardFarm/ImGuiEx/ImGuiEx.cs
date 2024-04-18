@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using Dalamud.Interface;
+using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.Interface.Utility;
 using ECommons.ImGuiMethods;
@@ -32,7 +33,7 @@ public static partial class ImGuiEx
     private static uint headerCurrentPos = 0;
     private static float headerImGuiButtonWidth = 0;
 
-    public static bool AddHeaderIcon(string id, FontAwesomeIcon icon, HeaderIconOptions options = null)
+    public static bool AddHeaderIcon(string id, FontAwesomeIcon icon, HeaderIconOptions? options = null)
     {
         if (ImGui.IsWindowCollapsed()) return false;
 
@@ -72,7 +73,12 @@ public static partial class ImGuiEx
             if (ImGui.IsMouseReleased(options.MouseButton))
                 pressed = true;
             if (options.ToastTooltipOnClick && ImGui.IsMouseReleased(options.ToastTooltipOnClickButton))
-                PluginInterface.UiBuilder.AddNotification(options.Tooltip!, null, NotificationType.Info);
+                NotificationManager.AddNotification(new Notification
+                {
+                    Type = NotificationType.Info,
+                    Content = options.Tooltip,
+                    Title = null,
+                });
         }
 
         ImGui.SetCursorPos(buttonPos);

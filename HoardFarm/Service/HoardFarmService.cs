@@ -342,7 +342,9 @@ public class HoardFarmService : IDisposable
 
     private bool CheckRetainer()
     {
-        if (Config.DoRetainers && RetainerService.CheckRetainersDone(Config.RetainerMode == 1))
+        if (Config.DoRetainers 
+            && RetainerService.CheckRetainersDone(Config.RetainerMode == 1) 
+            && RetainerScv.CanRunRetainer())
         {
             RetainerScv.StartProcess();
             return true;

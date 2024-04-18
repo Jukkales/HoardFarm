@@ -149,4 +149,15 @@ public static class Utils
 
         return false;
     }
+
+    public static bool AutoRetainerVersionHighEnough()
+    {
+        if (DalamudReflector.TryGetDalamudPlugin("AutoRetainer", out var plugin, false, true))
+        {
+            var minimalVersion = new Version(4, 2, 6, 3);
+            return plugin.GetType().Assembly.GetName().Version >= minimalVersion;
+        }
+
+        return false;
+    }
 }

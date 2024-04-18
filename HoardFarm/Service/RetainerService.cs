@@ -15,32 +15,39 @@ namespace HoardFarm.Service;
 public class RetainerService : IDisposable
 {
     public bool Running {get; private set;}
-    private bool finished;
     private readonly Timer updateTimer;
     private DateTime startedAt;
+    private bool autoRetainerEnabled;
+    private readonly AutoRetainerIPC autoRetainerIcp = new();
+
+    private DateTime? autoRetainerRunningTreshold;
 
     public RetainerService()
     {
-        RetainerApi.OnRetainerPostprocessStep += CheckRetainerPostProcess;
         updateTimer = new Timer();
         updateTimer.Elapsed += OnTimerUpdate;
         updateTimer.Interval = 1000;
         updateTimer.Enabled = false;
     }
 
-
     public void Dispose()
     {
-        RetainerApi.OnRetainerPostprocessStep -= CheckRetainerPostProcess;
         updateTimer.Dispose();
     }
 
     public void StartProcess()
     {
-        Running = true;
-        finished = false;
-        updateTimer.Enabled = true;
-        startedAt = DateTime.Now;
+        if (CanRunRetainer())
+        {
+            Running = true;
+            autoRetainerEnabled = false;
+            updateTimer.Enabled = true;
+            startedAt = DateTime.Now;
+        }
+        else
+        {
+            PluginLog.Information("Not enough inventory space to run retainers.");
+        }
     }
     
     public unsafe void FinishProcess()
@@ -61,7 +68,6 @@ public class RetainerService : IDisposable
         }
     }
     
-    
     private unsafe void OnTimerUpdate(object? sender, ElapsedEventArgs e)
     {
         if (DateTime.Now.Subtract(startedAt).TotalMinutes > 5)
@@ -75,7 +81,7 @@ public class RetainerService : IDisposable
             return;
         }
 
-        if (!TaskManager.IsBusy && Running)
+        if (!TaskManager.IsBusy && Running && !AutoRetainerRunning())
         {
             if (Player.Territory != LimsaMapId)
             {
@@ -100,13 +106,15 @@ public class RetainerService : IDisposable
                 {
                     Enqueue(() => { 
                         EnableAutoRetainer();
+                        autoRetainerEnabled = true;
                         return true;
                     });
                 }
                 return;
             }
             
-            if (CheckRetainerListOpen() && finished)
+            // We not reach here until autoretainer is done
+            if (autoRetainerEnabled && !AutoRetainerRunning())
             {
                 FinishProcess();
             }
@@ -159,16 +167,6 @@ public class RetainerService : IDisposable
             });
         }
     }
-
-    private void CheckRetainerPostProcess(string retainername)
-    {
-        PluginLog.Information($"Retainer {retainername} has finished processing.");
-        if (CheckAllRetainersOnVenture())
-        {
-            PluginLog.Information("All retainers are processed.");
-            finished = true;
-        }
-    }
     
     public static bool CheckRetainersDone(bool all = true)
     {
@@ -176,14 +174,24 @@ public class RetainerService : IDisposable
         return all ? data.All(e => CheckIsDone(e.VentureEndsAt)) : data.Any(e => CheckIsDone(e.VentureEndsAt));
     }
     
-    public static bool CheckAllRetainersOnVenture()
-    {
-        var data = RetainerApi.GetOfflineCharacterData(ClientState.LocalContentId).RetainerData;
-        return data.All(e => CheckIsDone(e.VentureEndsAt) == false);
-    }
-    
     private static bool CheckIsDone(long time)
     {
         return time+10 <= CSFramework.GetServerTime();
     }
+
+    private bool AutoRetainerRunning()
+    {
+        if (autoRetainerIcp.IsBusy())
+            autoRetainerRunningTreshold = null;
+        else
+            autoRetainerRunningTreshold ??= DateTime.Now.AddSeconds(10);
+        
+        return autoRetainerRunningTreshold == null || autoRetainerRunningTreshold > DateTime.Now; 
+    }
+
+    public bool CanRunRetainer()
+    {
+        return autoRetainerIcp.GetInventoryFreeSlotCount() > 4;
+    }
+
 }

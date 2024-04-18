@@ -2,6 +2,9 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.2.0]
+- better AutoRetainer handling
+
 ## [1.5.1.0]
 - timer bugfix
 
