@@ -2,6 +2,9 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.1.0]
+- timer bugfix
+
 ## [1.5.0.0]
 - safety and magicite usage if no concealment is available
 - fixed some bugs with the new retainers
