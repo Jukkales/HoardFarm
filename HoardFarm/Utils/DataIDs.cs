@@ -17,13 +17,10 @@ public static class DataIDs
     public const uint LimsaAetherytId = 8;
     public const uint RetainerBellDataId = 2000401;
     public static readonly Vector3 RetainerBellLocation = new(-124.1676f, 18f, 19.9041f);
-    
 
     public const ushort HoHMapId1 = 770;
     public const ushort HoHMapId11 = 771;
     public const ushort HoHMapId21 = 772;
-    
-
     
     public const uint AbandonDutyMessageId = 2545;
     public const uint ConfirmPartyKoMessageId = 10483;

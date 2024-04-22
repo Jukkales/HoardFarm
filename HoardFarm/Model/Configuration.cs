@@ -8,18 +8,18 @@ public class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 1;
     
-    public int HoardModeSave { get; set; }
-    public int HoardFarmMode { get; set; }
-    public int StopAfter { get; set; } = 50;
-    public int StopAfterMode { get; set; } = 1;
-    public int OverallRuns { get; set; }
-    public int OverallFoundHoards { get; set; }
-    public int OverallTime { get; set; }
-    public bool ShowOverlay { get; set; } = true;
-    public bool ParanoidMode { get; set; }
+    public int HoardModeSave;
+    public int HoardFarmMode;
+    public int StopAfter = 50;
+    public int StopAfterMode = 1;
+    public int OverallRuns;
+    public int OverallFoundHoards;
+    public int OverallTime;
+    public bool ShowOverlay = true;
+    public bool ParanoidMode;
     
-    public bool DoRetainers { get; set; }
-    public int RetainerMode { get; set; } = 1;
+    public bool DoRetainers;
+    public int RetainerMode = 1;
 
     public void Save()
     {

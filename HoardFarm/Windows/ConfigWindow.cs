@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -8,7 +7,6 @@ namespace HoardFarm.Windows;
 
 public class ConfigWindow() : Window("Hoard Farm Config", ImGuiWindowFlags.AlwaysAutoResize)
 {
-
     public override void Draw()
     {
         ImGui.Text("Actually no really much to configure here.");
@@ -35,16 +33,12 @@ public class ConfigWindow() : Window("Hoard Farm Config", ImGuiWindowFlags.Alway
             Config.Save();
         }
         
-        var showOverlay = Config.ShowOverlay;
-        if (ImGui.Checkbox("Show \"Open Hoardfarm\"-Overlay", ref showOverlay))
+        if (ImGui.Checkbox("Show \"Open Hoardfarm\"-Overlay", ref Config.ShowOverlay))
         {
-            Config.ShowOverlay = showOverlay;
             Config.Save();
         }
-        var paranoid = Config.ParanoidMode;
-        if (ImGui.Checkbox("Paranoid mode", ref paranoid))
+        if (ImGui.Checkbox("Paranoid mode", ref Config.ParanoidMode))
         {
-            Config.ParanoidMode = paranoid;
             Config.Save();
         }
         ImGui.SameLine();

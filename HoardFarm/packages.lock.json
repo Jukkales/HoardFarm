@@ -11,7 +11,7 @@
       "autoretainerapi": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[2.1.0.7, )"
+          "ECommons": "[2.2.0.1, )"
         }
       },
       "ecommons": {

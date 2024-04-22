@@ -20,7 +20,7 @@ public class RetainerService : IDisposable
     private bool autoRetainerEnabled;
     private readonly AutoRetainerIPC autoRetainerIcp = new();
 
-    private DateTime? autoRetainerRunningTreshold;
+    private DateTime? autoRetainerRunningThreshold;
 
     public RetainerService()
     {
@@ -182,11 +182,11 @@ public class RetainerService : IDisposable
     private bool AutoRetainerRunning()
     {
         if (autoRetainerIcp.IsBusy())
-            autoRetainerRunningTreshold = null;
+            autoRetainerRunningThreshold = null;
         else
-            autoRetainerRunningTreshold ??= DateTime.Now.AddSeconds(10);
+            autoRetainerRunningThreshold ??= DateTime.Now.AddSeconds(10);
         
-        return autoRetainerRunningTreshold == null || autoRetainerRunningTreshold > DateTime.Now; 
+        return autoRetainerRunningThreshold == null || autoRetainerRunningThreshold > DateTime.Now; 
     }
 
     public bool CanRunRetainer()

@@ -6,7 +6,6 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using HoardFarm.IPC;
 using HoardFarm.Model;
-using HoardFarm.Service;
 using ImGuiNET;
 using static HoardFarm.ImGuiEx.ImGuiEx;
 
@@ -28,51 +27,38 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         }
 
         if (!PluginInstalled(NavmeshIPC.Name))
+        {
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip($"This features requires {NavmeshIPC.Name} to be installed.");
+        }
 
         ImGui.SameLine(230);
         ImGui.Text(HoardService.HoardModeStatus);
         ImGui.Text("Stop After:");
         ImGui.SameLine();
         ImGui.SetNextItemWidth(100);
-        var stopAfter = Config.StopAfter;
-        if (ImGui.InputInt("##stopAfter", ref stopAfter))
-        {
-            Config.StopAfter = stopAfter;
+        if (ImGui.InputInt("##stopAfter", ref Config.StopAfter))
             Config.Save();
-        }
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(120);
 
-        var stopAfterMode = Config.StopAfterMode;
-        if (ImGui.Combo("##stopAfterMode", ref stopAfterMode, ["Runs", "Found Hoards", "Minutes"], 3))
-        {
-            Config.StopAfterMode = stopAfterMode;
+        if (ImGui.Combo("##stopAfterMode", ref Config.StopAfterMode, ["Runs", "Found Hoards", "Minutes"], 3))
             Config.Save();
-        }
 
         DrawRetainerSettings();
-
 
         ImGui.Separator();
 
         ImGui.BeginGroup();
         ImGui.Text("Savegame:");
         ImGui.Indent(15);
-        var save = conf.HoardModeSave;
-        if (ImGui.RadioButton("Savegame 1", ref save, 0))
-        {
-            conf.HoardModeSave = save;
+        
+        if (ImGui.RadioButton("Savegame 1", ref conf.HoardModeSave, 0))
             Config.Save();
-        }
 
-        if (ImGui.RadioButton("Savegame 2", ref save, 1))
-        {
-            conf.HoardModeSave = save;
+        if (ImGui.RadioButton("Savegame 2", ref conf.HoardModeSave, 1))
             Config.Save();
-        }
 
         ImGui.Unindent(15);
         ImGui.EndGroup();
@@ -82,12 +68,8 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         ImGui.BeginGroup();
         ImGui.Text("Farm Mode:");
         ImGui.Indent(15);
-        var farmMode = conf.HoardFarmMode;
-        if (ImGui.RadioButton("Efficiency", ref farmMode, 0))
-        {
-            conf.HoardFarmMode = farmMode;
+        if (ImGui.RadioButton("Efficiency", ref conf.HoardFarmMode, 0))
             Config.Save();
-        }
 
         ImGui.SameLine();
         ImGui.PushFont(UiBuilder.IconFont);
@@ -101,11 +83,9 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
                              "This mode is still recommended.");
         }
 
-        if (ImGui.RadioButton("Safety", ref farmMode, 1))
-        {
-            conf.HoardFarmMode = farmMode;
+        if (ImGui.RadioButton("Safety", ref conf.HoardFarmMode, 1))
             Config.Save();
-        }
+        
 
         ImGui.SameLine();
         ImGui.PushFont(UiBuilder.IconFont);
@@ -190,29 +170,28 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         var autoRetainer = RetainerApi.Ready && AutoRetainerVersionHighEnough();
         using (_ = ImRaii.Disabled(!autoRetainer))
         {
-            var enabled = Config.DoRetainers;
-            if (ImGui.Checkbox("Do retainers:", ref enabled)) Config.DoRetainers = enabled;
+            if (ImGui.Checkbox("Do retainers:", ref Config.DoRetainers)) 
+                Config.Save();
         }
 
         var hoverText = "Ports to Limsa Lominsa and runs retainers between runs if done.";
-        if (!autoRetainer) hoverText = "This features requires AutoRetainer 4.2.6.3 or higher to be installed and configured.";
+        if (!autoRetainer)
+            hoverText = "This features requires AutoRetainer 4.2.6.3 or higher to be installed and configured.";
 
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGui.SetTooltip(hoverText);
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(170);
-        var retainerMode = Config.RetainerMode;
-        if (ImGui.Combo("##retainerMode", ref retainerMode, ["If ANY Retainer is done", "If ALL Retainer are done"], 2))
-        {
-            Config.RetainerMode = retainerMode;
+        if (ImGui.Combo("##retainerMode", ref Config.RetainerMode,
+                        ["If ANY Retainer is done", "If ALL Retainer are done"], 2)) 
             Config.Save();
-        }
     }
 
     private static void HeaderIcons()
     {
         if (AddHeaderIcon("OpenConfig", FontAwesomeIcon.Cog, new HeaderIconOptions { Tooltip = "Open Config" }))
             P.ShowConfigWindow();
+        
         if (AddHeaderIcon("OpenHelp", FontAwesomeIcon.QuestionCircle, new HeaderIconOptions { Tooltip = "Open Help" }))
         {
             Process.Start(new ProcessStartInfo

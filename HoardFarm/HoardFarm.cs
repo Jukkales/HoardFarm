@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using AutoRetainerAPI;
 using Dalamud;
 using Dalamud.Interface.Windowing;
@@ -14,6 +15,7 @@ using HoardFarm.Windows;
 
 namespace HoardFarm;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class HoardFarm : IDalamudPlugin
 {
     private readonly HoardFarmService hoardFarmService;
@@ -23,7 +25,7 @@ public sealed class HoardFarm : IDalamudPlugin
     private readonly DeepDungeonMenuOverlay deepDungeonMenuOverlay;
     private readonly AutoRetainerApi autoRetainerApi;
     private readonly RetainerService retainerService;
-    public WindowSystem WindowSystem = new("HoardFarm");
+    public readonly WindowSystem WindowSystem = new("HoardFarm");
 
     public HoardFarm(DalamudPluginInterface? pluginInterface)
     {
