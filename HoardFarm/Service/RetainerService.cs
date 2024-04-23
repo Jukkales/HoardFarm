@@ -19,6 +19,7 @@ public class RetainerService : IDisposable
     private DateTime startedAt;
     private bool autoRetainerEnabled;
     private readonly AutoRetainerIPC autoRetainerIcp = new();
+    private bool retainerSense;
 
     private DateTime? autoRetainerRunningThreshold;
 
@@ -43,6 +44,12 @@ public class RetainerService : IDisposable
             autoRetainerEnabled = false;
             updateTimer.Enabled = true;
             startedAt = DateTime.Now;
+            retainerSense = GetRetainerSense();
+            if (retainerSense)
+            {
+                PluginLog.Information("Temporarily disabling RetainerSense.");
+                SetRetainerSense(false);
+            }
         }
         else
         {
@@ -55,9 +62,16 @@ public class RetainerService : IDisposable
         PluginLog.Information("Retainer processing finished.");
         if (GetOpenBellBehavior() != OpenBellBehavior.Enable_AutoRetainer)
         {
-            PluginLog.Information("Disabling AutoRetainer.");
+            PluginLog.Information("Disabling AutoRetainer according to user config.");
             DisableAutoRetainer();
         }
+
+        if (retainerSense)
+        {
+            PluginLog.Information("Re-enable RetainerSense.");
+            SetRetainerSense(true);
+        }
+
         Running = false;
         updateTimer.Enabled = false;
 
@@ -106,10 +120,12 @@ public class RetainerService : IDisposable
                 {
                     Enqueue(() => { 
                         EnableAutoRetainer();
-                        autoRetainerEnabled = true;
                         return true;
                     });
                 }
+                autoRetainerEnabled = true;
+                EnqueueWait(1000);
+                PluginLog.Information("Passing to AutoRetainer.");
                 return;
             }
             
@@ -167,7 +183,35 @@ public class RetainerService : IDisposable
             });
         }
     }
+    private void SetRetainerSense(bool value)
+    {
+        if (DalamudReflector.TryGetDalamudPlugin("AutoRetainer", out var plugin, false, true))
+        {
+            Safe(delegate
+            {
+                var type = plugin.GetType().Assembly.GetType("AutoRetainer.AutoRetainer", true);
+                var result = type?.GetField("config", ReflectionHelper.AllFlags)?.GetValue(plugin);
+                result.SetFoP("RetainerSense", value);
+            });
+        }
+    }
     
+    private bool GetRetainerSense()
+    {
+        var retainerSense = false;
+        if (DalamudReflector.TryGetDalamudPlugin("AutoRetainer", out var plugin, false, true))
+        {
+            Safe(delegate
+            {
+                var type = plugin.GetType().Assembly.GetType("AutoRetainer.AutoRetainer", true);
+                var result = type?.GetField("config", ReflectionHelper.AllFlags)?.GetValue(plugin);
+                retainerSense = (bool) result.GetFoP("RetainerSense");
+            });
+        }
+
+        return retainerSense;
+    }
+
     public static bool CheckRetainersDone(bool all = true)
     {
         var data = RetainerApi.GetOfflineCharacterData(ClientState.LocalContentId).RetainerData;

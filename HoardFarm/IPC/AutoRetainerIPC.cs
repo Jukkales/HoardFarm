@@ -9,10 +9,7 @@ namespace HoardFarm.IPC;
 [SuppressMessage("ReSharper", "UnassignedReadonlyField")]
 public class AutoRetainerIPC
 {
-    public AutoRetainerIPC()
-    {
-        EzIPC.Init(this, "AutoRetainer.PluginState");
-    }
+    public AutoRetainerIPC() => EzIPC.Init(this, "AutoRetainer.PluginState");
     
     [EzIPC] public readonly Func<bool> IsBusy;
     [EzIPC] public readonly Func<int> GetInventoryFreeSlotCount;

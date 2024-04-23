@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>Jukkales</Authors>
-        <Version>1.5.2.2</Version>
+        <Version>1.5.2.3</Version>
         <Description>HoardFarm Dalamud Plugin</Description>
         <PackageProjectUrl>https://github.com/Jukkales/HoardFarm</PackageProjectUrl>
     </PropertyGroup>

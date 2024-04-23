@@ -2,6 +2,13 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.2.3]
+- tamed AutoRetainer
+- camera now aligns to the player while running
+
+## [1.5.2.2]
+- some performance things and code cleanup
+
 ## [1.5.2.1]
 - just a message fix
 

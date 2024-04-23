@@ -83,6 +83,11 @@ public class HoardFarmService : IDisposable
         HoardModeStatus = "";
         ChatGui.ChatMessage -= OnChatMessage;
         Reset();
+
+        if (RetainerScv.Running)
+        {
+            RetainerScv.FinishProcess();
+        }
     }
 
     private void EnableFarm()
