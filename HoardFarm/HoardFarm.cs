@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AutoRetainerAPI;
 using Dalamud;
@@ -18,12 +19,15 @@ namespace HoardFarm;
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class HoardFarm : IDalamudPlugin
 {
-    private readonly HoardFarmService hoardFarmService;
+    private const string OldRepoUrl = "https://raw.githubusercontent.com/Jukkales/DalamudPlugins/master/repo.json";
+    private const string NewRepoUrl = "https://puni.sh/api/repository/jukka";
     private readonly AchievementService achievementService;
-    private readonly MainWindow mainWindow;
+    private readonly AutoRetainerApi autoRetainerApi;
     private readonly ConfigWindow configWindow;
     private readonly DeepDungeonMenuOverlay deepDungeonMenuOverlay;
-    private readonly AutoRetainerApi autoRetainerApi;
+
+    private readonly HoardFarmService hoardFarmService;
+    private readonly MainWindow mainWindow;
     private readonly RetainerService retainerService;
     public readonly WindowSystem WindowSystem = new("HoardFarm");
 
@@ -31,7 +35,7 @@ public sealed class HoardFarm : IDalamudPlugin
     {
         pluginInterface?.Create<PluginService>();
         P = this;
-        
+
         ECommonsMain.Init(pluginInterface, this, Module.DalamudReflector);
         DalamudReflector.RegisterOnInstalledPluginsChangedEvents(() =>
         {
@@ -51,13 +55,13 @@ public sealed class HoardFarm : IDalamudPlugin
 
         hoardFarmService = new HoardFarmService();
         HoardService = hoardFarmService;
-        
+
         achievementService = new AchievementService();
         Achievements = achievementService;
 
         autoRetainerApi = new AutoRetainerApi();
         RetainerApi = autoRetainerApi;
-        
+
         retainerService = new RetainerService();
         RetainerScv = retainerService;
 
@@ -65,17 +69,17 @@ public sealed class HoardFarm : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += () => OnCommand();
         PluginInterface.UiBuilder.OpenConfigUi += ShowConfigWindow;
         Framework.Update += FrameworkUpdate;
-        
+
         PluginService.TaskManager = new TaskManager();
-        
-        
-        EzCmd.Add("/hoardfarm", (_, args) => OnCommand(args) ,
-          "Opens the Hoard Farm window.\n" +
-                    "/hoardfarm config | c → Open the config window.\n" +
-                    "/hoardfarm enable | e → Enable farming mode.\n" +
-                    "/hoardfarm disable | d → Disable farming mode.\n" +
-                    "/hoardfarm toggle | t → Toggle farming mode.\n"
-          );
+
+
+        EzCmd.Add("/hoardfarm", (_, args) => OnCommand(args),
+                  "Opens the Hoard Farm window.\n" +
+                  "/hoardfarm config | c → Open the config window.\n" +
+                  "/hoardfarm enable | e → Enable farming mode.\n" +
+                  "/hoardfarm disable | d → Disable farming mode.\n" +
+                  "/hoardfarm toggle | t → Toggle farming mode.\n"
+        );
 
         CultureInfo.DefaultThreadCurrentUICulture = ClientState.ClientLanguage switch
         {
@@ -84,24 +88,26 @@ public sealed class HoardFarm : IDalamudPlugin
             ClientLanguage.Japanese => CultureInfo.GetCultureInfo("ja"),
             _ => CultureInfo.GetCultureInfo("en")
         };
-    }
-
-
-    private void FrameworkUpdate(IFramework framework)
-    {
-        YesAlreadyManager.Tick();
+        
+        TryUpdateRepo();
     }
 
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
         hoardFarmService.Dispose();
-        
+
         autoRetainerApi.Dispose();
         retainerService.Dispose();
-        
+
         Framework.Update -= FrameworkUpdate;
         ECommonsMain.Dispose();
+    }
+
+
+    private void FrameworkUpdate(IFramework framework)
+    {
+        Tick();
     }
 
     private void DrawUI()
@@ -112,7 +118,7 @@ public sealed class HoardFarm : IDalamudPlugin
     public void OnCommand(string? args = null)
     {
         args = args?.Trim().ToLower() ?? "";
-        
+
         switch (args)
         {
             case "c":
@@ -125,10 +131,7 @@ public sealed class HoardFarm : IDalamudPlugin
                 return;
             case "d":
             case "disable":
-                if (HoardService.HoardMode)
-                {
-                    HoardService.FinishRun = true;
-                }
+                if (HoardService.HoardMode) HoardService.FinishRun = true;
                 return;
             case "t":
             case "toggle":
@@ -139,18 +142,40 @@ public sealed class HoardFarm : IDalamudPlugin
                 break;
         }
     }
-    
+
     public void ShowConfigWindow()
     {
         configWindow.IsOpen = true;
     }
-    
+
     public void ShowMainWindow()
     {
         if (!mainWindow.IsOpen)
         {
             Achievements.UpdateProgress();
             mainWindow.IsOpen = true;
+        }
+    }
+
+    private void TryUpdateRepo()
+    {
+        var conf = DalamudReflector.GetService("Dalamud.Configuration.Internal.DalamudConfiguration");
+        var repos = (IEnumerable)conf.GetFoP("ThirdRepoList");
+        if (repos != null)
+        {
+            foreach (var r in repos)
+                if (OldRepoUrl.EqualsIgnoreCase((string)r.GetFoP("Url")))
+                {
+                    PluginLog.Information("Updating HoardFarm repository URL");
+                    var pluginMgr = DalamudReflector.GetPluginManager();
+                    Safe(() =>
+                    {
+                        r.SetFoP("Url", NewRepoUrl);
+                        conf.Call("Save", []);
+                        pluginMgr.Call("SetPluginReposFromConfigAsync", [true]);
+                    });
+                    return;
+                }
         }
     }
 }

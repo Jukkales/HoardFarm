@@ -2,6 +2,9 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.2.4]
+- changed repo url
+
 ## [1.5.2.3]
 - tamed AutoRetainer
 - camera now aligns to the player while running
