@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AutoRetainerAPI;
 using Dalamud;
@@ -19,8 +18,6 @@ namespace HoardFarm;
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class HoardFarm : IDalamudPlugin
 {
-    private const string OldRepoUrl = "https://raw.githubusercontent.com/Jukkales/DalamudPlugins/master/repo.json";
-    private const string NewRepoUrl = "https://puni.sh/api/repository/jukka";
     private readonly AchievementService achievementService;
     private readonly AutoRetainerApi autoRetainerApi;
     private readonly ConfigWindow configWindow;
@@ -88,8 +85,6 @@ public sealed class HoardFarm : IDalamudPlugin
             ClientLanguage.Japanese => CultureInfo.GetCultureInfo("ja"),
             _ => CultureInfo.GetCultureInfo("en")
         };
-        
-        TryUpdateRepo();
     }
 
     public void Dispose()
@@ -154,28 +149,6 @@ public sealed class HoardFarm : IDalamudPlugin
         {
             Achievements.UpdateProgress();
             mainWindow.IsOpen = true;
-        }
-    }
-
-    private void TryUpdateRepo()
-    {
-        var conf = DalamudReflector.GetService("Dalamud.Configuration.Internal.DalamudConfiguration");
-        var repos = (IEnumerable)conf.GetFoP("ThirdRepoList");
-        if (repos != null)
-        {
-            foreach (var r in repos)
-                if (OldRepoUrl.EqualsIgnoreCase((string)r.GetFoP("Url")))
-                {
-                    PluginLog.Information("Updating HoardFarm repository URL");
-                    var pluginMgr = DalamudReflector.GetPluginManager();
-                    Safe(() =>
-                    {
-                        r.SetFoP("Url", NewRepoUrl);
-                        conf.Call("Save", []);
-                        pluginMgr.Call("SetPluginReposFromConfigAsync", [true]);
-                    });
-                    return;
-                }
         }
     }
 }
