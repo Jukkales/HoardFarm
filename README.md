@@ -10,22 +10,15 @@
 ```
 https://puni.sh/api/repository/jukka
 ```
-**YOU WILL NEEED [vnavmesh](https://github.com/awgil/ffxiv_navmesh) FOR THIS!**
-Check the [Installation Guide](https://github.com/Jukkales/HoardFarm/blob/main/INSTALL.md) for more information.
----
 
-<img src="icon.png" alt="image" style="max-width: 128px; float: left; margin-right: 20px; ">
-
-Overwhelmed that you have to find 20000 hoards to get "For the Hoard VI"?
+<img src="https://raw.githubusercontent.com/Jukkales/HoardFarm/main/icon.png" width="100" height="100" align="left"> Overwhelmed that you have to find 20000 hoards to get "For the Hoard VI"?
 
 It takes ages if you run DeepDungeons normal and even if farmed specifically, it still takes hundreds of hours.
 
-
 This little assistant will help you getting the achievement faster _(by doing it for you)_.
 
-<p style="clear: both"></p>
-
----
+**YOU WILL NEEED [vnavmesh](https://github.com/awgil/ffxiv_navmesh) FOR THIS!**
+Check the [Installation Guide](https://github.com/Jukkales/HoardFarm/blob/main/INSTALL.md) for more information.
 
 ## Features
 - Fully automatic hoard farming
@@ -36,7 +29,6 @@ This little assistant will help you getting the achievement faster _(by doing it
 - ... oh and statictics!
 - Being imperfect
 
----
 ## Usage
 
 You need to have an prepared Heaven on High Save at Floor 11 or 21 with at least **one Pomander of Intuition** and **one Pomaner of Concealment**.
@@ -46,7 +38,6 @@ Just select your save slot, hit start and watch it running. It will stop one it 
 
 ![image](images/pomander.png)
 
----
 ### Educational Purpose
 
 I mainly created this plugin for me to learn whats possible and how to do it. 
