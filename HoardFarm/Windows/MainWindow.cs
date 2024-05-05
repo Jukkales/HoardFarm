@@ -11,7 +11,7 @@ using static HoardFarm.ImGuiEx.ImGuiEx;
 
 namespace HoardFarm.Windows;
 
-public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm",
+public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version} - OLD VERSION###HoardFarm",
                                    ImGuiWindowFlags.AlwaysAutoResize)
 {
     private readonly Configuration conf = Config;
@@ -19,6 +19,31 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
     public override void Draw()
     {
         HeaderIcons();
+        
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        
+        ImGui.TextColored(new Vector4(1, 0, 0, 1), "Hoard Farm repo has changed! \nPlease update your repo.");
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(1, 0, 0, 1));
+        if (ImGui.Button("Click here for Instructions"))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/Jukkales/DalamudPlugins/blob/main/RepoChange.md",
+                UseShellExecute = true
+            });
+        }
+        ImGui.PopStyleColor();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
+        ImGui.Separator();
 
         using (_ = ImRaii.Disabled(!PluginInstalled(NavmeshIPC.Name)))
         {
