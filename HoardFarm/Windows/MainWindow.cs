@@ -7,19 +7,73 @@ using Dalamud.Interface.Windowing;
 using HoardFarm.IPC;
 using HoardFarm.Model;
 using ImGuiNET;
-using static HoardFarm.ImGuiEx.ImGuiEx;
 
 namespace HoardFarm.Windows;
 
-public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm",
-                                   ImGuiWindowFlags.AlwaysAutoResize)
+public class MainWindow : Window
 {
     private readonly Configuration conf = Config;
 
+    public MainWindow()
+        : base($"Hoard Farm {P.GetType().Assembly.GetName().Version}###HoardFarm",
+               ImGuiWindowFlags.AlwaysAutoResize)
+    {
+        TitleBarButtons =
+        [
+            new TitleBarButton
+            {
+                Icon = FontAwesomeIcon.Cog,
+                IconOffset = new Vector2(1.5f, 1),
+                ShowTooltip = () =>
+                {
+                    using (_ = ImRaii.Tooltip())
+                        ImGui.Text("Open Config");
+                },
+                Click = _ => P.ShowConfigWindow()
+            },
+
+            new TitleBarButton
+            {
+                Icon = FontAwesomeIcon.QuestionCircle,
+                IconOffset = new Vector2(1.5f, 1),
+                ShowTooltip = () =>
+                {
+                    using (_ = ImRaii.Tooltip())
+                        ImGui.Text("Open Help");
+                },
+                Click = _ =>
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://github.com/Jukkales/HoardFarm/wiki/How-to-run",
+                        UseShellExecute = true
+                    });
+                }
+            },
+
+            new TitleBarButton
+            {
+                Icon = FontAwesomeIcon.Heart,
+                IconOffset = new Vector2(1.5f, 1),
+                ShowTooltip = () =>
+                {
+                    using (_ = ImRaii.Tooltip())
+                        ImGui.Text("Support me ♥");
+                },
+                Click = _ =>
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://ko-fi.com/jukkales",
+                        UseShellExecute = true
+                    });
+                },
+            }
+        ];
+    }
+
     public override void Draw()
     {
-        HeaderIcons();
-
         using (_ = ImRaii.Disabled(!PluginInstalled(NavmeshIPC.Name)))
         {
             var enabled = HoardService.HoardMode;
@@ -185,31 +239,6 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         if (ImGui.Combo("##retainerMode", ref Config.RetainerMode,
                         ["If ANY Retainer is done", "If ALL Retainer are done"], 2)) 
             Config.Save();
-    }
-
-    private static void HeaderIcons()
-    {
-        if (AddHeaderIcon("OpenConfig", FontAwesomeIcon.Cog, new HeaderIconOptions { Tooltip = "Open Config" }))
-            P.ShowConfigWindow();
-        
-        if (AddHeaderIcon("OpenHelp", FontAwesomeIcon.QuestionCircle, new HeaderIconOptions { Tooltip = "Open Help" }))
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://github.com/Jukkales/HoardFarm/wiki/How-to-run",
-                UseShellExecute = true
-            });
-        }
-
-        if (AddHeaderIcon("KofiLink", FontAwesomeIcon.Heart,
-                          new HeaderIconOptions { Tooltip = "Support me ♥", Color = 0xFF3030D0 }))
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://ko-fi.com/jukkales",
-                UseShellExecute = true
-            });
-        }
     }
 
     private static String FormatTime(int seconds, bool withHours = true)
