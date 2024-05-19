@@ -175,6 +175,9 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         }
 
         var hoverText = "Ports to Limsa Lominsa and runs retainers between runs if done.";
+
+        if (autoRetainer && !RetainerScv.CanRunRetainer())
+            hoverText = "Please check the current world name or Inventory slot.";
         if (!autoRetainer)
             hoverText = "This features requires AutoRetainer 4.2.6.3 or higher to be installed and configured.";
 
