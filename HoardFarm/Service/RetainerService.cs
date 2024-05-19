@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Timers;
 using AutoRetainerAPI.Configuration;
+using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
@@ -235,7 +236,9 @@ public class RetainerService : IDisposable
 
     public bool CanRunRetainer()
     {
-        return autoRetainerIcp.GetInventoryFreeSlotCount() > 4;
+        return autoRetainerIcp.GetInventoryFreeSlotCount() > 4 && 
+               Svc.ClientState.LocalPlayer != null && 
+               Svc.ClientState.LocalPlayer.HomeWorld.Id == Svc.ClientState.LocalPlayer.CurrentWorld.Id;
     }
 
 }

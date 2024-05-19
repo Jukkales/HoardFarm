@@ -168,6 +168,7 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
     private void DrawRetainerSettings()
     {
         var autoRetainer = RetainerApi.Ready && AutoRetainerVersionHighEnough();
+        var canRunRetainer = RetainerScv.CanRunRetainer();
         using (_ = ImRaii.Disabled(!autoRetainer))
         {
             if (ImGui.Checkbox("Do retainers:", ref Config.DoRetainers)) 
@@ -175,6 +176,9 @@ public class MainWindow() : Window($"Hoard Farm {P.GetType().Assembly.GetName().
         }
 
         var hoverText = "Ports to Limsa Lominsa and runs retainers between runs if done.";
+
+        if (!canRunRetainer)
+            hoverText = "Please check the current world name or Inventory slot.";
         if (!autoRetainer)
             hoverText = "This features requires AutoRetainer 4.2.6.3 or higher to be installed and configured.";
 
