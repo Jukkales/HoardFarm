@@ -2,6 +2,13 @@
 
 I try to keep this changelog up to date with the latest changes in the project.
 
+## [1.5.2.6]
+- Use default Dalamud title bar buttons by @carvelli
+- Retainer home world check by @decorwdyun
+
+## [1.5.2.5]
+- just version push
+
 ## [1.5.2.4]
 - changed repo url
 
