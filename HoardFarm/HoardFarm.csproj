@@ -21,6 +21,7 @@
 
     <PropertyGroup>
         <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+        <DalamudDevPlugins>$(appdata)\XIVLauncher\devPlugins\HoardFarm\</DalamudDevPlugins>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
@@ -30,6 +31,7 @@
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
         <DefineConstants>TRACE</DefineConstants>
+        <OutputPath>$(DalamudDevPlugins)</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

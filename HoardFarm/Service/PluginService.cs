@@ -3,7 +3,7 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using ECommons.Automation;
+using ECommons.Automation.LegacyTaskManager;
 using HoardFarm.Model;
 
 namespace HoardFarm.Service;
@@ -13,7 +13,7 @@ public class PluginService
     public static HoardFarm P = null!;
 
     [PluginService]
-    public static DalamudPluginInterface PluginInterface { get; private set; } = null!;
+    public static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService]
     public static IChatGui ChatGui { get; private set; } = null!;
     [PluginService]

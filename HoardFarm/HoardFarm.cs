@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AutoRetainerAPI;
-using Dalamud;
+using Dalamud.Game;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons;
-using ECommons.Automation;
+using ECommons.Automation.LegacyTaskManager;
 using ECommons.Reflection;
 using HoardFarm.IPC;
 using HoardFarm.Model;
@@ -28,7 +28,7 @@ public sealed class HoardFarm : IDalamudPlugin
     private readonly RetainerService retainerService;
     public readonly WindowSystem WindowSystem = new("HoardFarm");
 
-    public HoardFarm(DalamudPluginInterface? pluginInterface)
+    public HoardFarm(IDalamudPluginInterface? pluginInterface)
     {
         pluginInterface?.Create<PluginService>();
         P = this;

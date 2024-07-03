@@ -5,6 +5,7 @@
     "Description": "Plugin to help farming DeepDungeon Hoards (...for you)",
     "InternalName": "HoardFarm",
     "ApplicableVersion": "any",
+    "DalamudApiLevel": 10,
     "Tags": [
         "hoard",
         "farm",

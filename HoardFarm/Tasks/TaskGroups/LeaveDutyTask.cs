@@ -39,7 +39,7 @@ public class LeaveDutyTask : IBaseTaskGroup
             return false;
         }
         
-        var eventObject = stackalloc EventObject[1];
+        var eventObject = stackalloc AtkValue[1];
         var atkValues = CreateEventParams();
         if (atkValues != null)
         {

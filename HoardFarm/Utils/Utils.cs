@@ -48,7 +48,7 @@ public static class Utils
         var target = TargetSystem.Instance()->Target;
 
         if (occupied && Svc.Condition[ConditionFlag.OccupiedInQuestEvent] && target != null &&
-            target->DataID == KyuseiDataId) occupied = false;
+            target->BaseId == KyuseiDataId) occupied = false;
 
         return Player.Available
                && Player.Object.CastActionId == 0
@@ -62,7 +62,7 @@ public static class Utils
     {
         if (node == null || ids.Length <= 0) return null;
 
-        if (node->NodeID == ids[0])
+        if (node->NodeId == ids[0])
         {
             if (ids.Length == 1) return node;
 
@@ -119,7 +119,7 @@ public static class Utils
     public static unsafe bool KyuseiInteractable()
     {
         if (ObjectTable.TryGetFirst(e => e.DataId == KyuseiDataId, out var npc))
-            return npc.Position.Distance(Player.GameObject->Position) < 7f;
+            return npc.Position.Distance(Player.Position) < 7f;
         return false;
     }
 
@@ -134,7 +134,7 @@ public static class Utils
                 Pomander.Safety => SafetyChain,
                 _ => []
             };
-            return chain.Length != 0 && GetNodeByIDChain(addon->GetRootNode(), chain)->IsVisible;
+            return chain.Length != 0 && GetNodeByIDChain(addon->GetRootNode(), chain)->IsVisible();
         }
 
         return false;
@@ -143,7 +143,7 @@ public static class Utils
     public static unsafe bool CanUseMagicite()
     {
         if (TryGetAddonByName<AtkUnitBase>("DeepDungeonStatus", out var addon) && IsAddonReady(addon))
-            return GetNodeByIDChain(addon->GetRootNode(), MagiciteChain)->IsVisible;
+            return GetNodeByIDChain(addon->GetRootNode(), MagiciteChain)->IsVisible();
 
         return false;
     }

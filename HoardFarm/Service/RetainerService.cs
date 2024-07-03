@@ -106,7 +106,7 @@ public class RetainerService : IDisposable
 
             if (ObjectTable.TryGetFirst(gameObject => gameObject.DataId == RetainerBellDataId, out var bell))
             {
-                if (bell.Position.Distance(Player.GameObject->Position) > 3)
+                if (bell.Position.Distance(Player.Position) > 3)
                 {
                     Enqueue(new PathfindTask(RetainerBellLocation, true, 1f), "Move to bell");
                     EnqueueWait(2000); // SE server are just slow
@@ -114,7 +114,7 @@ public class RetainerService : IDisposable
                 }
             }
 
-            if (NotBusy() || TargetSystem.Instance()->Target == null || TargetSystem.Instance()->Target->DataID != RetainerBellDataId)
+            if (NotBusy() || TargetSystem.Instance()->Target == null || TargetSystem.Instance()->Target->BaseId != RetainerBellDataId)
             {
                 Enqueue(new InteractObjectTask(RetainerBellDataId), "Interact Bell");
                 if (GetOpenBellBehavior() != OpenBellBehavior.Enable_AutoRetainer)

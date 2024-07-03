@@ -124,12 +124,12 @@ public class HoardFarmService : IDisposable
         if (!TaskManager.IsBusy) {
             if (!objectPositions.Where(e => !visitedObjectIds.Contains(e.Value.ObjectId))
                                 .Where(e => ChestIDs.Contains(e.Value.DataId))
-                                .OrderBy(e => e.Value.Position.Distance(Player.GameObject->Position))
+                                .OrderBy(e => e.Value.Position.Distance(Player.Position))
                                 .Select(e => e.Value)
                                 .TryGetFirst(out var next))
             {
                 if (!objectPositions.Where(e => !visitedObjectIds.Contains(e.Value.ObjectId))
-                                    .OrderBy(e => e.Value.Position.Distance(Player.GameObject->Position))
+                                    .OrderBy(e => e.Value.Position.Distance(Player.Position))
                                     .Select(e => e.Value)
                                     .TryGetFirst(out next))
                 {
@@ -342,7 +342,7 @@ public class HoardFarmService : IDisposable
     private void UpdateObjectPositions()
     {
         foreach (var gameObject in ObjectTable)
-            objectPositions.TryAdd(gameObject.ObjectId, new MapObject(gameObject.ObjectId, gameObject.DataId, gameObject.Position));
+            objectPositions.TryAdd(gameObject.EntityId, new MapObject(gameObject.EntityId, gameObject.DataId, gameObject.Position));
     }
 
     private bool CheckRetainer()
@@ -427,7 +427,7 @@ public class HoardFarmService : IDisposable
     }
 
     private void OnChatMessage(
-        XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+        XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
         if (senseHoardMessage.Equals(message.TextValue))
         {
