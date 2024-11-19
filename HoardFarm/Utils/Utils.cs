@@ -12,7 +12,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HoardFarm.Model;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HoardFarm.Utils;
 
@@ -91,7 +91,7 @@ public static class Utils
 
     public static unsafe AtkUnitBase* FindSelectYesNo(uint rowId)
     {
-        var s = Svc.Data.GetExcelSheet<Addon>()!.GetRow(rowId)!.Text
+        var s = Svc.Data.GetExcelSheet<Addon>().GetRow(rowId).Text
                    .ToDalamudString().ExtractText();
         for (var i = 1; i < 100; i++)
             try

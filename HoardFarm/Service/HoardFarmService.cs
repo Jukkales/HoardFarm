@@ -14,7 +14,7 @@ using HoardFarm.IPC;
 using HoardFarm.Model;
 using HoardFarm.Tasks;
 using HoardFarm.Tasks.TaskGroups;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HoardFarm.Service;
 
@@ -52,9 +52,9 @@ public class HoardFarmService : IDisposable
         updateTimer.Interval = 1000;
         updateTimer.Enabled = false;
         
-        hoardFoundMessage = DataManager.GetExcelSheet<LogMessage>()!.GetRow(7274)!.Text.ToDalamudString().ExtractText();
-        senseHoardMessage = DataManager.GetExcelSheet<LogMessage>()!.GetRow(7272)!.Text.ToDalamudString().ExtractText();
-        noHoardMessage = DataManager.GetExcelSheet<LogMessage>()!.GetRow(7273)!.Text.ToDalamudString().ExtractText();
+        hoardFoundMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7274).Text.ToDalamudString().ExtractText();
+        senseHoardMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7272).Text.ToDalamudString().ExtractText();
+        noHoardMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7273).Text.ToDalamudString().ExtractText();
         
         ClientState.TerritoryChanged += OnMapChange;
     }

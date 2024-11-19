@@ -238,7 +238,7 @@ public class RetainerService : IDisposable
     {
         return autoRetainerIcp.GetInventoryFreeSlotCount() > 4 && 
                Svc.ClientState.LocalPlayer != null && 
-               Svc.ClientState.LocalPlayer.HomeWorld.Id == Svc.ClientState.LocalPlayer.CurrentWorld.Id;
+               Svc.ClientState.LocalPlayer.HomeWorld.RowId == Svc.ClientState.LocalPlayer.CurrentWorld.RowId;
     }
 
 }
