@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Timers;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
@@ -25,7 +25,6 @@ public class HoardFarmService : IDisposable
     public string HoardModeStatus = "";
     public string HoardModeError = "";
     private bool hoardModeActive;
-    private readonly Timer updateTimer;
     public int SessionRuns;
     public int SessionFoundHoards;
     public int SessionTime;
@@ -44,19 +43,18 @@ public class HoardFarmService : IDisposable
     private readonly string noHoardMessage;
     private readonly Dictionary<uint, MapObject> objectPositions = new();
     private DateTime runStarted;
+    private bool running;
+    private DateTime lastTick = DateTime.Now;
 
     public HoardFarmService()
     {
-        updateTimer = new Timer();
-        updateTimer.Elapsed += OnTimerUpdate;
-        updateTimer.Interval = 1000;
-        updateTimer.Enabled = false;
-        
         hoardFoundMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7274).Text.ToDalamudString().ExtractText();
         senseHoardMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7272).Text.ToDalamudString().ExtractText();
         noHoardMessage = DataManager.GetExcelSheet<LogMessage>().GetRow(7273).Text.ToDalamudString().ExtractText();
         
         ClientState.TerritoryChanged += OnMapChange;
+        
+        Framework.Update += OnTick;
     }
     
     public bool HoardMode
@@ -78,7 +76,7 @@ public class HoardFarmService : IDisposable
 
     private void DisableFarm()
     {
-        updateTimer.Enabled = false;
+        running = false;
         TaskManager.Abort();
         HoardModeStatus = "";
         ChatGui.ChatMessage -= OnChatMessage;
@@ -96,7 +94,7 @@ public class HoardFarmService : IDisposable
         SessionTime = 0;
         SessionRuns = 0;
         SessionFoundHoards = 0;
-        updateTimer.Enabled = true;
+        running = true;
         HoardModeStatus = "Running";
         HoardModeError = "";
         ChatGui.ChatMessage += OnChatMessage;
@@ -154,8 +152,13 @@ public class HoardFarmService : IDisposable
         return false;
     }
 
-    private void OnTimerUpdate(object? sender, ElapsedEventArgs e)
+    private void OnTick(IFramework framework)
     {
+        if (!running || DateTime.Now - lastTick < TimeSpan.FromSeconds(1))
+            return;
+        
+        lastTick = DateTime.Now;
+        
         // Retainer do not increase runtime
         if (RetainerScv.Running)
         {
@@ -164,7 +167,7 @@ public class HoardFarmService : IDisposable
         }
 
         SessionTime++;
-        Config.OverallTime++;        
+        Config.OverallTime++;
         
         if (!NavmeshIPC.NavIsReady())
         {
@@ -412,9 +415,9 @@ public class HoardFarmService : IDisposable
 
     public void Dispose()
     {
-        updateTimer.Dispose();
         ChatGui.ChatMessage -= OnChatMessage;
         ClientState.TerritoryChanged -= OnMapChange;
+        Framework.Update -= OnTick;
     }
 
     private void OnMapChange(ushort territoryType)

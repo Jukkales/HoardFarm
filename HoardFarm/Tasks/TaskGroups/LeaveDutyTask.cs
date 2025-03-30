@@ -39,7 +39,7 @@ public class LeaveDutyTask : IBaseTaskGroup
             return false;
         }
         
-        var eventObject = stackalloc AtkValue[1];
+        var eventObject = (AtkValue*)Marshal.AllocHGlobal(sizeof(AtkValue));
         var atkValues = CreateEventParams();
         if (atkValues != null)
         {
@@ -48,6 +48,7 @@ public class LeaveDutyTask : IBaseTaskGroup
                 return true;
             } finally {
                 Marshal.FreeHGlobal(new IntPtr(atkValues));
+                Marshal.FreeHGlobal(new IntPtr(eventObject));
             }
         }
 

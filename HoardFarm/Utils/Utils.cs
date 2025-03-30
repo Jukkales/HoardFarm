@@ -27,10 +27,7 @@ public static class Utils
     public static bool InHoH => Player.Territory == HoHMapId11 || Player.Territory == HoHMapId21;
     public static bool InRubySea => Player.Territory == RubySeaMapId;
 
-    public static unsafe bool IsMoving()
-    {
-        return AgentMap.Instance()->IsPlayerMoving == 1;
-    }
+    public static unsafe bool IsMoving() => AgentMap.Instance()->IsPlayerMoving;
 
     public static float Distance(this Vector3 v, Vector3 v2)
     {
